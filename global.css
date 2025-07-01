@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Clases personalizadas de VetControl */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 text-white font-medium py-3 px-6 rounded-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-500 text-white font-medium py-3 px-6 rounded-lg;
+  }
+  
+  .btn-success {
+    @apply bg-success-500 text-white font-medium py-3 px-6 rounded-lg;
+  }
+  
+  .btn-warning {
+    @apply bg-warning-500 text-white font-medium py-3 px-6 rounded-lg;
+  }
+  
+  .btn-danger {
+    @apply bg-danger-500 text-white font-medium py-3 px-6 rounded-lg;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-neutral-200 p-4;
+  }
+  
+  .status-available {
+    @apply bg-success-100 text-success-700 px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-warning {
+    @apply bg-warning-100 text-warning-700 px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-danger {
+    @apply bg-danger-100 text-danger-700 px-3 py-1 rounded-full text-xs font-medium;
+  }
+}
