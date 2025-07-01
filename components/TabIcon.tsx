@@ -1,9 +1,9 @@
 import React from 'react';
-import { LucideIconProps } from 'lucide-react-native';
+import { LucideProps } from 'lucide-react-native';
 
 interface TabIconProps {
   focused: boolean;
-  IconComponent: React.ComponentType<LucideIconProps>;
+  IconComponent: React.ComponentType<LucideProps>;
   size?: number;
 }
 
@@ -14,7 +14,7 @@ export const TabIcon: React.FC<TabIconProps> = ({
 }) => (
   <IconComponent 
     size={size} 
-    color={focused ? '#3B82F6' : '#9CA3AF'} 
+    color={focused ? '#005456' : '#94a3b8'} 
     strokeWidth={focused ? 2.5 : 2}
   />
 );
