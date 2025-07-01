@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { Container } from '../components/Container';
 import { useAuthStore } from '../stores/authStore';
 import { logger } from '../services/logger';
@@ -277,8 +277,11 @@ export const LoginScreen = () => {
         <View className="flex-1 justify-center px-6">
           {/* Header */}
           <View className="items-center mb-8">
-            <Text className="text-6xl mb-4">🐾</Text>
-            <Text className="text-3xl font-bold text-gray-800 mb-2">VetControl</Text>
+            <Image
+              source={require('../assets/VetControl.png')}
+              className="w-24 h-24 mb-4"
+              resizeMode="contain"
+            />
             <Text className="text-lg text-gray-600 text-center">
               {isRegister ? 'Crear cuenta nueva' : 'Gestiona la salud de tus mascotas'}
             </Text>
@@ -321,9 +324,6 @@ export const LoginScreen = () => {
           <View className="p-4 bg-blue-50 rounded-lg">
             <Text className="text-blue-800 text-sm text-center font-medium mb-1">
               💡 Aplicación de demostración
-            </Text>
-            <Text className="text-blue-700 text-xs text-center">
-              Usa cualquier email válido para probar la aplicación
             </Text>
           </View>
         </View>

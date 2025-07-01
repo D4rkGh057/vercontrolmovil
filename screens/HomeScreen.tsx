@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View, RefreshControl, ActivityIndicator, Alert, Pressable } from 'react-native';
+import { ScrollView, Text, View, RefreshControl, ActivityIndicator, Alert, Pressable, TouchableOpacity } from 'react-native';
 import { Container } from '../components/Container';
 import { citasService, mascotasService, recordatoriosService } from '../services/api';
 import { Cita, Mascota, Recordatorio } from '../types';
@@ -28,7 +28,7 @@ export const HomeScreen = () => {
       
       // Filtrar próximas citas
       const proximasCitas = citasResponse.data
-        .filter((cita: Cita) => cita.estado === 'programada')
+        .filter((cita: Cita) => cita.estado === 'Programada')
         .slice(0, 3);
       
       setCitas(proximasCitas);
@@ -67,8 +67,8 @@ export const HomeScreen = () => {
     return (
       <Container>
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#3B82F6" />
-          <Text className="mt-2 text-gray-600">Cargando...</Text>
+          <ActivityIndicator size="large" color="#005456" />
+          <Text className="mt-2 text-neutral-600">Cargando...</Text>
         </View>
       </Container>
     );
@@ -77,13 +77,13 @@ export const HomeScreen = () => {
   return (
     <Container>
       <ScrollView 
-        className="flex-1 bg-gray-50"
+        className="flex-1 bg-neutral-50"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {/* Header */}
-        <View className="bg-blue-500 rounded-2xl mx-4 mt-4 p-6 mb-6">
+        <View className="bg-primary-500 rounded-2xl mx-4 mt-10 p-6 mb-6">
           <Text className="text-white text-2xl font-bold">¡Hola! 👋</Text>
           <Text className="text-white/90 text-base mt-1">Cuida a tus mascotas con amor</Text>
         </View>
@@ -91,44 +91,44 @@ export const HomeScreen = () => {
         {/* Stats Cards */}
         <View className="flex-row justify-between px-4 mb-6">
           <View className="flex-1 bg-white rounded-xl p-4 mr-2 items-center shadow-sm">
-            <Heart size={24} color="#F87171" />
-            <Text className="text-2xl font-bold text-gray-800 mt-2">{mascotas.length}</Text>
-            <Text className="text-gray-600 text-sm">Mascotas</Text>
+            <Heart size={24} color="#ef4444" />
+            <Text className="text-2xl font-bold text-neutral-800 mt-2">{mascotas.length}</Text>
+            <Text className="text-neutral-600 text-sm">Mascotas</Text>
           </View>
           <View className="flex-1 bg-white rounded-xl p-4 ml-2 items-center shadow-sm">
-            <Calendar size={24} color="#60A5FA" />
-            <Text className="text-2xl font-bold text-gray-800 mt-2">{citas.length}</Text>
-            <Text className="text-gray-600 text-sm">Citas</Text>
+            <Calendar size={24} color="#005456" />
+            <Text className="text-2xl font-bold text-neutral-800 mt-2">{citas.length}</Text>
+            <Text className="text-neutral-600 text-sm">Citas</Text>
           </View>
         </View>
 
         {/* Mis Mascotas */}
         <View className="px-4 mb-6">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-bold text-gray-800">Mis Mascotas</Text>
-            <Pressable>
-              <Text className="text-blue-500 font-medium">Ver todas</Text>
-            </Pressable>
+            <Text className="text-lg font-bold text-neutral-800">Mis Mascotas</Text>
+            <TouchableOpacity onPress={() => console.log('Ver todas las mascotas')}>
+              <Text className="text-primary-500 font-bold">Ver todas</Text>
+            </TouchableOpacity>
           </View>
           
           {mascotas.length > 0 ? (
             mascotas.slice(0, 2).map((mascota) => (
-              <View key={mascota.id} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
+              <View key={mascota.id_mascota} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
                 <View className="flex-row items-center">
-                  <View className="w-12 h-12 bg-gray-200 rounded-full mr-3 items-center justify-center">
+                  <View className="w-12 h-12 bg-neutral-200 rounded-full mr-3 items-center justify-center">
                     <Text className="text-xl">{mascota.especie === 'Perro' ? '🐕' : '🐱'}</Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="font-bold text-gray-800 text-base">{mascota.nombre}</Text>
-                    <Text className="text-gray-600 text-sm">{mascota.raza} • {mascota.edad} años</Text>
+                    <Text className="font-bold text-neutral-800 text-base">{mascota.nombre}</Text>
+                    <Text className="text-neutral-600 text-sm">{mascota.raza} • {mascota.sexo}</Text>
                   </View>
-                  <ChevronRight size={20} color="#9CA3AF" />
+                  <ChevronRight size={20} color="#94a3b8" />
                 </View>
               </View>
             ))
           ) : (
             <View className="bg-white rounded-xl p-4 items-center">
-              <Text className="text-gray-500">No tienes mascotas registradas</Text>
+              <Text className="text-neutral-500">No tienes mascotas registradas</Text>
             </View>
           )}
         </View>
@@ -136,34 +136,34 @@ export const HomeScreen = () => {
         {/* Próximas Citas */}
         <View className="px-4 mb-6">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-bold text-gray-800">Próximas Citas</Text>
-            <Pressable>
-              <Text className="text-blue-500 font-medium">Ver todas</Text>
-            </Pressable>
+            <Text className="text-lg font-bold text-neutral-800">Próximas Citas</Text>
+            <TouchableOpacity onPress={() => console.log('Ver todas las citas')}>
+              <Text className="text-primary-500 font-bold">Ver todas</Text>
+            </TouchableOpacity>
           </View>
           
           {citas.length > 0 ? (
             citas.map((cita) => (
-              <View key={cita.id} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
+              <View key={cita.id_cita} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
                 <View className="flex-row justify-between items-start mb-2">
-                  <Text className="font-bold text-gray-800 text-base">{cita.mascota?.nombre}</Text>
-                  <View className="bg-blue-100 px-3 py-1 rounded-full">
-                    <Text className="text-blue-600 text-xs font-medium">{cita.motivo}</Text>
+                  <Text className="font-bold text-neutral-800 text-base">{cita.id_mascota?.nombre}</Text>
+                  <View className="bg-secondary-100 px-3 py-1 rounded-full">
+                    <Text className="text-secondary-600 text-xs font-medium">{cita.motivo}</Text>
                   </View>
                 </View>
                 <View className="flex-row items-center">
-                  <Calendar size={16} color="#9CA3AF" />
-                  <Text className="text-gray-600 text-sm ml-2">{formatDate(cita.fecha)} a las {cita.hora}</Text>
+                  <Calendar size={16} color="#94a3b8" />
+                  <Text className="text-neutral-600 text-sm ml-2">{formatDate(cita.fecha_hora)}</Text>
                 </View>
                 <View className="flex-row items-center mt-1">
-                  <MapPin size={16} color="#9CA3AF" />
-                  <Text className="text-gray-600 text-sm ml-2">Dr. García</Text>
+                  <MapPin size={16} color="#94a3b8" />
+                  <Text className="text-neutral-600 text-sm ml-2">Dr. {cita.id_usuario?.nombre}</Text>
                 </View>
               </View>
             ))
           ) : (
             <View className="bg-white rounded-xl p-4 items-center">
-              <Text className="text-gray-500">No tienes citas programadas</Text>
+              <Text className="text-neutral-500">No tienes citas programadas</Text>
             </View>
           )}
         </View>
@@ -171,23 +171,23 @@ export const HomeScreen = () => {
         {/* Recordatorios */}
         {recordatorios.length > 0 && (
           <View className="px-4 mb-6">
-            <Text className="text-lg font-bold text-gray-800 mb-4">Recordatorios</Text>
+            <Text className="text-lg font-bold text-neutral-800 mb-4">Recordatorios</Text>
             
             {recordatorios.map((recordatorio) => (
-              <View key={recordatorio.id} className="bg-white rounded-xl p-4 mb-3 shadow-sm border-l-4 border-yellow-400">
+              <View key={recordatorio.id} className="bg-white rounded-xl p-4 mb-3 shadow-sm border-l-4 border-warning-400">
                 <View className="flex-row justify-between items-start">
                   <View className="flex-1">
-                    <Text className="font-bold text-gray-800">{recordatorio.mascota?.nombre}</Text>
-                    <Text className="text-gray-600 text-sm">{recordatorio.descripcion}</Text>
+                    <Text className="font-bold text-neutral-800">{recordatorio.mascota?.nombre}</Text>
+                    <Text className="text-neutral-600 text-sm">{recordatorio.descripcion}</Text>
                     <View className="flex-row items-center mt-1">
-                      <Clock size={14} color="#F59E0B" />
-                      <Text className="text-yellow-600 text-xs ml-1">
+                      <Clock size={14} color="#f59e0b" />
+                      <Text className="text-warning-600 text-xs ml-1">
                         Vence: {formatDate(recordatorio.fecha_programada)}
                       </Text>
                     </View>
                   </View>
-                  <View className="w-6 h-6 bg-yellow-100 rounded-full items-center justify-center">
-                    <Text className="text-yellow-600 text-xs">!</Text>
+                  <View className="w-6 h-6 bg-warning-100 rounded-full items-center justify-center">
+                    <Text className="text-warning-600 text-xs">!</Text>
                   </View>
                 </View>
               </View>

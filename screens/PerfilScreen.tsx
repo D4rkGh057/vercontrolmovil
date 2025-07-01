@@ -45,7 +45,7 @@ export const PerfilScreen = () => {
 
   return (
     <Container>
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1 mt-10">
         <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
           Mi Perfil
         </Text>
@@ -60,9 +60,6 @@ export const PerfilScreen = () => {
               {user?.nombre} {user?.apellido}
             </Text>
             <Text className="text-gray-600">{user?.email}</Text>
-            {user?.telefono && (
-              <Text className="text-gray-600">{user.telefono}</Text>
-            )}
           </View>
 
           <TouchableOpacity 
@@ -107,7 +104,7 @@ export const PerfilScreen = () => {
 
           <TouchableOpacity 
             className="flex-row items-center p-4"
-            onPress={() => Alert.alert('Acerca de', 'VetControl Mobile v1.0.0\nDesarrollado para la gestión veterinaria')}
+            onPress={() => Alert.alert('Acerca de', 'VetControl Mobile v1.0.0\nDesarrollado por SoftwareSquad !404')}
           >
             <View className="mr-4">
               <Info size={24} color="#6B7280" />
