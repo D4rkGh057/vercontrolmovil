@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import {
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator
+} from 'react-native';
 import { Container } from '../components/Container';
 import { mascotasService } from '../services/api';
 import { Mascota } from '../types';
-import { 
+import { useAuthStore } from '../stores/authStore';
+import {
   Plus,
-  ChevronDown,
-  ChevronRight,
-  Calendar,
   Activity,
-  Stethoscope,
-  Pencil,
-  Dog,
-  Cat
+  Slice,
+  StethoscopeIcon,
+  Syringe,
+  Pill,
+  HeartPulse,
+  ClipboardList,
+  ShieldCheck
 } from 'lucide-react-native';
+import { MascotaCard } from '../components/mascotas/MascotaCard';
+import { HistorialMedico } from '../components/mascotas/HistorialMedico';
+import { AddMascotaModal } from '../components/mascotas/AddMascotaModal';
+import { EditMascotaModal } from '../components/mascotas/EditMascotaModal';
 
 interface HistorialItem {
   id: string;
@@ -24,14 +36,37 @@ interface HistorialItem {
   notas?: string;
 }
 
+interface MascotaForm {
+  nombre: string;
+  especie: string;
+  raza: string;
+  sexo: string;
+  fecha_nacimiento: string;
+  color: string;
+}
+
 export const MascotasScreen = () => {
+  const { user } = useAuthStore();
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedMascota, setExpandedMascota] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [addingMascota, setAddingMascota] = useState(false);
+  const [editingMascota, setEditingMascota] = useState(false);
+  const [selectedMascota, setSelectedMascota] = useState<Mascota | null>(null);
+  const [mascotaForm, setMascotaForm] = useState<MascotaForm>({
+    nombre: '',
+    especie: 'Perro',
+    raza: '',
+    sexo: 'Macho',
+    fecha_nacimiento: '',
+    color: ''
+  });
 
   // Datos de ejemplo para el historial médico
   const historialMedico: Record<string, HistorialItem[]> = {
-    'max': [
+    'boby': [
       {
         id: '1',
         tipo: 'vacuna',
@@ -82,7 +117,149 @@ export const MascotasScreen = () => {
   }, []);
 
   const handleAddMascota = () => {
-    Alert.alert('Agregar Mascota', 'Funcionalidad próximamente disponible');
+    setShowAddModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setMascotaForm({
+      nombre: '',
+      especie: 'Perro',
+      raza: '',
+      sexo: 'Macho',
+      fecha_nacimiento: '',
+      color: ''
+    });
+  };
+
+  const handleSubmitMascota = async () => {
+    // Validar campos requeridos
+    if (!mascotaForm.nombre.trim() || !mascotaForm.raza.trim() || !mascotaForm.color.trim()) {
+      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+      return;
+    }
+
+    // Validar fecha de nacimiento
+    if (mascotaForm.fecha_nacimiento) {
+      const fechaNac = new Date(mascotaForm.fecha_nacimiento);
+      const hoy = new Date();
+      if (fechaNac > hoy) {
+        Alert.alert('Error', 'La fecha de nacimiento no puede ser futura');
+        return;
+      }
+    }
+
+    setAddingMascota(true);
+    try {
+      const mascotaData = {
+        ...mascotaForm,
+        id_cliente: {
+          id_cliente: user?.id_usuario ?? '636fe979-89b8-4d80-a22f-abe93bd2d15e'
+        }
+      };
+
+      await mascotasService.createMascota(mascotaData);
+      Alert.alert('Éxito', 'Mascota agregada correctamente');
+      handleCloseModal();
+      loadMascotas(); // Recargar la lista
+    } catch (error) {
+      console.error('Error adding mascota:', error);
+      Alert.alert('Error', 'No se pudo agregar la mascota. Intenta nuevamente.');
+    } finally {
+      setAddingMascota(false);
+    }
+  };
+
+  const handleEditMascota = (mascota: Mascota) => {
+    setSelectedMascota(mascota);
+    setMascotaForm({
+      nombre: mascota.nombre,
+      especie: mascota.especie,
+      raza: mascota.raza,
+      sexo: mascota.sexo,
+      fecha_nacimiento: mascota.fecha_nacimiento || '',
+      color: mascota.color
+    });
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedMascota(null);
+    setMascotaForm({
+      nombre: '',
+      especie: 'Perro',
+      raza: '',
+      sexo: 'Macho',
+      fecha_nacimiento: '',
+      color: ''
+    });
+  };
+
+  const handleSubmitEditMascota = async () => {
+    if (!selectedMascota) return;
+
+    // Validar campos requeridos
+    if (!mascotaForm.nombre.trim() || !mascotaForm.raza.trim() || !mascotaForm.color.trim()) {
+      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+      return;
+    }
+
+    // Validar fecha de nacimiento
+    if (mascotaForm.fecha_nacimiento) {
+      const fechaNac = new Date(mascotaForm.fecha_nacimiento);
+      const hoy = new Date();
+      if (fechaNac > hoy) {
+        Alert.alert('Error', 'La fecha de nacimiento no puede ser futura');
+        return;
+      }
+    }
+
+    setEditingMascota(true);
+    try {
+      // Crear objeto solo con los campos que han cambiado
+      const changedFields: Partial<MascotaForm> = {};
+      
+      if (mascotaForm.nombre !== selectedMascota.nombre) {
+        changedFields.nombre = mascotaForm.nombre;
+      }
+      if (mascotaForm.especie !== selectedMascota.especie) {
+        changedFields.especie = mascotaForm.especie;
+      }
+      if (mascotaForm.raza !== selectedMascota.raza) {
+        changedFields.raza = mascotaForm.raza;
+      }
+      if (mascotaForm.sexo !== selectedMascota.sexo) {
+        changedFields.sexo = mascotaForm.sexo;
+      }
+      if (mascotaForm.fecha_nacimiento !== (selectedMascota.fecha_nacimiento || '')) {
+        changedFields.fecha_nacimiento = mascotaForm.fecha_nacimiento || undefined;
+      }
+      if (mascotaForm.color !== selectedMascota.color) {
+        changedFields.color = mascotaForm.color;
+      }
+
+      // Solo actualizar si hay cambios
+      if (Object.keys(changedFields).length === 0) {
+        Alert.alert('Información', 'No se detectaron cambios para guardar');
+        handleCloseEditModal();
+        return;
+      }
+
+      await mascotasService.patchMascota(selectedMascota.id_mascota, changedFields);
+      Alert.alert('Éxito', 'Mascota actualizada correctamente');
+      handleCloseEditModal();
+      loadMascotas(); // Recargar la lista
+    } catch (error) {
+      console.error('Error updating mascota:', error);
+      Alert.alert('Error', 'No se pudo actualizar la mascota. Intenta nuevamente.');
+    } finally {
+      setEditingMascota(false);
+    }
+  };
+
+  const updateFormField = (field: keyof MascotaForm, value: string) => {
+    setMascotaForm(prev => ({ ...prev, [field]: value }));
   };
 
   const toggleHistorial = (mascotaId: string) => {
@@ -91,16 +268,24 @@ export const MascotasScreen = () => {
 
   const getHistorialIcon = (tipo: string) => {
     const iconProps = { size: 16, color: '#6B7280' };
-    
+
     switch (tipo) {
       case 'vacuna':
-        return <Activity {...iconProps} color="#059669" />;
+        return <Syringe {...iconProps} color="#059669" />;
       case 'consulta':
-        return <Stethoscope {...iconProps} color="#0284C7" />;
+        return <StethoscopeIcon {...iconProps} color="#0284C7" />;
       case 'cirugia':
-        return <Calendar {...iconProps} color="#DC2626" />;
+        return <Slice {...iconProps} color="#DC2626" />;
+      case 'medicacion':
+        return <Pill {...iconProps} color="#F59E0B" />;
+      case 'chequeo':
+        return <HeartPulse {...iconProps} color="#8B5CF6" />;
+      case 'examen':
+        return <ClipboardList {...iconProps} color="#10B981" />;
+      case 'desparasitacion':
+        return <ShieldCheck {...iconProps} color="#3B82F6" />;
       default:
-        return <Calendar {...iconProps} />;
+        return <Activity {...iconProps} />;
     }
   };
 
@@ -112,7 +297,7 @@ export const MascotasScreen = () => {
   if (loading) {
     return (
       <Container>
-        <View className="flex-1 justify-center items-center">
+        <View className="flex-1 justify-center items-center px-4">
           <ActivityIndicator size="large" color="#3B82F6" />
           <Text className="mt-2 text-gray-600">Cargando mascotas...</Text>
         </View>
@@ -122,12 +307,12 @@ export const MascotasScreen = () => {
 
   return (
     <Container>
-      <View className="flex-1 px-2">
+      <View className="flex-1 px-4">
         {/* Header */}
         <View className="flex-row justify-between items-center mt-10 mb-2">
           <Text className="text-2xl font-bold text-gray-800">Mis Mascotas</Text>
-          <TouchableOpacity 
-            className="bg-gray-800 px-4 py-2 rounded-lg flex-row items-center"
+          <TouchableOpacity
+            className="bg-primary-500 px-4 py-2 rounded-lg flex-row items-center"
             onPress={handleAddMascota}
           >
             <Plus size={16} color="white" />
@@ -145,7 +330,7 @@ export const MascotasScreen = () => {
             <Text className="text-gray-500 text-center mb-6">
               Agrega tu primera mascota para comenzar a gestionar su cuidado
             </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               className="bg-blue-500 px-6 py-3 rounded-lg flex-row items-center"
               onPress={handleAddMascota}
             >
@@ -158,74 +343,50 @@ export const MascotasScreen = () => {
             {mascotas.map((mascota) => {
               const mascotaKey = mascota.nombre.toLowerCase();
               const historial = historialMedico[mascotaKey] || [];
-              const isExpanded = expandedMascota === mascota.id?.toString();
-
+              const isExpanded = expandedMascota === mascota.id_mascota;
+              const edad = mascota.fecha_nacimiento
+                ? new Date().getFullYear() - new Date(mascota.fecha_nacimiento).getFullYear()
+                : 'N/A';
               return (
-                <View key={mascota.id} className="bg-white rounded-xl mb-4 shadow-sm">
-                  {/* Mascota Info */}
-                  <View className="p-4">
-                    <View className="flex-row items-center mb-3">
-                      <View className="w-12 h-12 bg-gray-200 rounded-full mr-3 items-center justify-center">
-                        {mascota.especie?.toLowerCase().includes('perro') ?  <Dog/> : <Cat/>}
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-lg font-bold text-gray-800">{mascota.nombre}</Text>
-                        <Text className="text-gray-600">{mascota.raza} • {mascota.edad} años</Text>
-                      </View>
-                        <Pencil size={16} color="#6B7280" />
-                    </View>
-
-                    <View className="flex-row">
-                      <Text className="text-gray-600 mr-4">{mascota.peso ?? '25'} kg</Text>
-                      <Text className="text-gray-600">{mascota.color ?? 'Dorado'}</Text>
-                    </View>
-                  </View>
-
-                  {/* Historial Médico */}
-                  <View className="border-t border-gray-100">
-                    <TouchableOpacity 
-                      className="flex-row justify-between items-center p-4"
-                      onPress={() => toggleHistorial(mascota.id?.toString() || '')}
-                    >
-                      <View className="flex-row items-center">
-                        <Calendar size={16} color="#6B7280" />
-                        <Text className="font-medium text-gray-800 ml-2">Historial Médico</Text>
-                      </View>
-                      <View className="flex-row items-center">
-                        <Text className="text-gray-600 text-sm mr-2">{historial.length} registros</Text>
-                        {isExpanded ? (
-                          <ChevronDown size={20} color="#6B7280" />
-                        ) : (
-                          <ChevronRight size={20} color="#6B7280" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-
-                    {isExpanded && historial.length > 0 && (
-                      <View className="px-4 pb-4">
-                        {historial.map((item) => (
-                          <View key={item.id} className="flex-row items-start py-3 border-b border-gray-50 last:border-b-0">
-                            <View className="w-8 h-8 rounded-full items-center justify-center mr-3" 
-                                  style={{ backgroundColor: item.tipo === 'vacuna' ? '#DCFCE7' : '#DBEAFE' }}>
-                              {getHistorialIcon(item.tipo)}
-                            </View>
-                            <View className="flex-1">
-                              <View className="flex-row justify-between items-start mb-1">
-                                <Text className="font-medium text-gray-800 flex-1">{item.titulo}</Text>
-                                <Text className="text-xs text-gray-500 ml-2">{formatDate(item.fecha)}</Text>
-                              </View>
-                              <Text className="text-sm text-gray-600">{item.veterinario}</Text>
-                            </View>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-                </View>
+                <MascotaCard
+                  key={mascota.id_mascota}
+                  mascota={mascota}
+                  edad={edad}
+                  onEdit={() => handleEditMascota(mascota)}
+                >
+                  <HistorialMedico
+                    isExpanded={isExpanded}
+                    historial={historial}
+                    onToggle={() => toggleHistorial(mascota.id_mascota ?? '')}
+                    getHistorialIcon={getHistorialIcon}
+                    formatDate={formatDate}
+                  />
+                </MascotaCard>
               );
             })}
+            <View className="h-4" />
           </ScrollView>
         )}
+
+        {/* Modal para agregar mascota */}
+        <AddMascotaModal
+          visible={showAddModal}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmitMascota}
+          addingMascota={addingMascota}
+          mascotaForm={mascotaForm}
+          updateFormField={updateFormField}
+        />
+        {/* Modal para editar mascota */}
+        <EditMascotaModal
+          visible={showEditModal}
+          onClose={handleCloseEditModal}
+          onSubmit={handleSubmitEditMascota}
+          editingMascota={editingMascota}
+          mascotaForm={mascotaForm}
+          updateFormField={updateFormField}
+          originalMascota={selectedMascota}
+        />
       </View>
     </Container>
   );
