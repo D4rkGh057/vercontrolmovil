@@ -1,29 +1,39 @@
+export interface ClienteAPI {
+  id_cliente: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  direccion: string;
+}
+
 export interface Mascota {
-  id: string;
+  id_mascota: string;
   nombre: string;
   especie: string;
   raza: string;
-  edad: number;
-  peso?: number;
-  color?: string;
-  sexo?: string;
-  fecha_nacimiento?: string;
-  cliente_id: string;
-  created_at: string;
-  updated_at: string;
+  sexo: string;
+  fecha_nacimiento: string;
+  color: string;
+  id_cliente: ClienteAPI;
+}
+
+export interface Usuario {
+  id_usuario: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  contraseña: string;
+  rol: string;
 }
 
 export interface Cita {
-  id: string;
-  fecha: string;
-  hora: string;
+  id_cita: string;
+  fecha_hora: string;
   motivo: string;
-  estado: 'programada' | 'completada' | 'cancelada';
-  mascota_id: string;
-  usuario_id: string;
-  created_at: string;
-  updated_at: string;
-  mascota?: Mascota;
+  estado: 'Programada' | 'Completada' | 'Cancelada';
+  id_mascota: Mascota;
+  id_usuario: Usuario;
 }
 
 export interface HistorialMedico {
@@ -63,10 +73,10 @@ export interface Recordatorio {
 }
 
 export interface Usuario {
-  id: string;
-  email: string;
+  id_usuario: string;
   nombre: string;
   apellido: string;
-  telefono?: string;
-  rol: 'cliente' | 'veterinario' | 'admin';
+  email: string;
+  contraseña: string;
+  rol: string;
 }

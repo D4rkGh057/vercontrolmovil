@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from './logger';
 
-const BASE_URL = 'http://192.168.1.7:3000'; // Para emulador Android, cambia por tu IP si usas dispositivo físico
+const BASE_URL = 'http://192.168.1.13:3000'; // Para emulador Android, cambia por tu IP si usas dispositivo físico
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -78,6 +78,7 @@ export const mascotasService = {
   getMascota: (id: string) => api.get(`/mascotas/${id}`),
   createMascota: (data: any) => api.post('/mascotas', data),
   updateMascota: (id: string, data: any) => api.put(`/mascotas/${id}`, data),
+  patchMascota: (id: string, data: any) => api.patch(`/mascotas/${id}`, data),
   deleteMascota: (id: string) => api.delete(`/mascotas/${id}`),
 };
 

@@ -14,7 +14,6 @@ import { PerfilScreen } from './screens/PerfilScreen';
 import { TabIcon } from './components/TabIcon';
 import { 
   Home, 
-  PawPrint, 
   Calendar, 
   Bell, 
   User, 
@@ -34,9 +33,9 @@ const AppContent = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#3B82F6" />
-        <Text className="mt-4 text-gray-600">Cargando...</Text>
+      <View className="flex-1 justify-center items-center bg-neutral-50">
+        <ActivityIndicator size="large" color="#005456" />
+        <Text className="mt-4 text-neutral-600">Cargando...</Text>
       </View>
     );
   }
@@ -53,13 +52,13 @@ const AppContent = () => {
           tabBarStyle: {
             backgroundColor: '#ffffff',
             borderTopWidth: 1,
-            borderTopColor: '#e5e7eb',
+            borderTopColor: '#e2e8f0',
             paddingBottom: Math.max(insets.bottom, 5),
             paddingTop: 5,
             height: 60 + Math.max(insets.bottom, 0),
           },
-          tabBarActiveTintColor: '#3B82F6',
-          tabBarInactiveTintColor: '#9CA3AF',
+          tabBarActiveTintColor: '#005456',
+          tabBarInactiveTintColor: '#94a3b8',
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',
