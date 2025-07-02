@@ -76,6 +76,7 @@ export const authService = {
 export const mascotasService = {
   getMascotas: () => api.get('/mascotas'),
   getMascota: (id: string) => api.get(`/mascotas/${id}`),
+  getMascotasByDueño: (dueñoId: string) => api.get(`/mascotas/owner/${dueñoId}`),
   createMascota: (data: any) => api.post('/mascotas', data),
   updateMascota: (id: string, data: any) => api.put(`/mascotas/${id}`, data),
   patchMascota: (id: string, data: any) => api.patch(`/mascotas/${id}`, data),

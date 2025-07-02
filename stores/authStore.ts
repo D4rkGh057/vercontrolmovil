@@ -105,7 +105,7 @@ export const useAuthStore = create<AuthState>()(
                 
                 // Crear objeto usuario a partir del JWT
                 user = {
-                  id_usuario: decodedPayload.sub ?? decodedPayload.userId ?? decodedPayload.id ?? decodedPayload.id_usuario,
+                  id: decodedPayload.sub ?? decodedPayload.userId ?? decodedPayload.id ?? decodedPayload.id_usuario,
                   email: email, // Usamos el email del formulario
                   nombre: decodedPayload.username ?? decodedPayload.nombre ?? 'Usuario',
                   apellido: decodedPayload.apellido ?? '',
@@ -121,7 +121,7 @@ export const useAuthStore = create<AuthState>()(
                 
                 // Como último recurso, crear un usuario básico
                 user = {
-                  id_usuario: 'temp_' + Date.now(),
+                  id: 'temp_' + Date.now(),
                   email: email,
                   nombre: 'Usuario',
                   apellido: '',
@@ -275,7 +275,7 @@ export const useAuthStore = create<AuthState>()(
           }
 
           // Intentar diferentes formas de obtener el ID del usuario
-          const userId = user.id_usuario ?? (user as any).id ?? (user as any).userId;
+          const userId = user.id ?? (user as any).id_usuario ?? (user as any).userId;
           if (!userId) {
             logger.error('❌ No se pudo obtener el ID del usuario', user);
             throw new Error('ID de usuario no encontrado');

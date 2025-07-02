@@ -8,9 +8,9 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Container } from '../components/Container';
-import { mascotasService } from '../services/api';
 import { Mascota } from '../types';
 import { useAuthStore } from '../stores/authStore';
+import { useMascotasStore } from '../stores/mascotasStore';
 import {
   Plus,
   Activity,
@@ -51,8 +51,15 @@ interface MascotaForm {
 
 export const MascotasScreen = () => {
   const { user } = useAuthStore();
-  const [mascotas, setMascotas] = useState<Mascota[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    mascotas, 
+    loading, 
+    error, 
+    getMascotasByDueño, 
+    addMascota, 
+    updateMascota 
+  } = useMascotasStore();
+  
   const [expandedMascota, setExpandedMascota] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -108,57 +115,14 @@ export const MascotasScreen = () => {
     ]
   };
 
-  const loadMascotas = async () => {
-    try {
-      const response = await mascotasService.getMascotas();
-      // Agregar datos de ejemplo para campos que no están en la API
-      const mascotasConDatos = response.data.map((mascota: Mascota) => {
-        const nombre = mascota.nombre.toLowerCase();
-
-        // Datos de ejemplo para Boby
-        if (nombre === 'boby') {
-          return {
-            ...mascota,
-            peso_actual: 25.5,
-            tamano: 'Mediano',
-            num_microchip_collar: '950012345678900',
-            esterilizado: true
-          };
-        }
-
-        // Datos de ejemplo para Luna
-        if (nombre === 'luna') {
-          return {
-            ...mascota,
-            peso_actual: 4.2,
-            tamano: 'Pequeño',
-            num_microchip_collar: '950098765432100',
-            esterilizado: true
-          };
-        }
-
-        // Para otras mascotas, agregar datos predeterminados
-        return {
-          ...mascota,
-          peso_actual: mascota.especie === 'Perro' ? 15.0 : 3.5,
-          tamano: 'Mediano',
-          num_microchip_collar: '',
-          esterilizado: false
-        };
-      });
-
-      setMascotas(mascotasConDatos);
-    } catch (error) {
-      console.error('Error loading mascotas:', error);
-      Alert.alert('Error', 'No se pudieron cargar las mascotas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadMascotas();
-  }, []);
+    if (user?.id) {
+      getMascotasByDueño(user.id).catch((error) => {
+        Alert.alert('Error', 'No se pudieron cargar las mascotas');
+        console.error('Error loading mascotas:', error);
+      });
+    }
+  }, [user, getMascotasByDueño]);
 
   const handleAddMascota = () => {
     setShowAddModal(true);
@@ -203,14 +167,13 @@ export const MascotasScreen = () => {
         ...mascotaForm,
         peso_actual: parseFloat(mascotaForm.peso_actual) || 0,
         id_usuario: {
-          id_usuario: user?.id_usuario ?? 'c2fc1688-0c58-4e21-8c38-b5bdd1680910'
+          id_usuario: user?.id ?? 'c2fc1688-0c58-4e21-8c38-b5bdd1680910'
         }
       };
 
-      await mascotasService.createMascota(mascotaData);
+      await addMascota(mascotaData);
       Alert.alert('Éxito', 'Mascota agregada correctamente');
       handleCloseModal();
-      loadMascotas(); // Recargar la lista
     } catch (error) {
       console.error('Error adding mascota:', error);
       Alert.alert('Error', 'No se pudo agregar la mascota. Intenta nuevamente.');
@@ -220,6 +183,12 @@ export const MascotasScreen = () => {
   };
 
   const handleEditMascota = (mascota: Mascota) => {
+    // Validar que la mascota tenga todas las propiedades necesarias
+    if (!mascota?.nombre || !mascota?.id_mascota) {
+      Alert.alert('Error', 'No se pueden editar los datos de esta mascota. Datos incompletos.');
+      return;
+    }
+
     setSelectedMascota(mascota);
     
     // Convertir tamano a tipo específico
@@ -259,60 +228,69 @@ export const MascotasScreen = () => {
     });
   };
 
-  const handleSubmitEditMascota = async () => {
-    if (!selectedMascota) return;
-
-    // Validar campos requeridos
+  const validateEditForm = () => {
     if (!mascotaForm.nombre.trim() || !mascotaForm.raza.trim() || !mascotaForm.color.trim()) {
       Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
-      return;
+      return false;
     }
 
-    // Validar fecha de nacimiento
     if (mascotaForm.fecha_nacimiento) {
       const fechaNac = new Date(mascotaForm.fecha_nacimiento);
       const hoy = new Date();
       if (fechaNac > hoy) {
         Alert.alert('Error', 'La fecha de nacimiento no puede ser futura');
-        return;
+        return false;
       }
     }
 
+    return true;
+  };
+
+  const getChangedFields = (selectedMascota: Mascota) => {
+    const changedFields: Partial<MascotaForm> = {};
+
+    if (mascotaForm.nombre !== selectedMascota.nombre) {
+      changedFields.nombre = mascotaForm.nombre;
+    }
+    if (mascotaForm.especie !== selectedMascota.especie) {
+      changedFields.especie = mascotaForm.especie;
+    }
+    if (mascotaForm.raza !== selectedMascota.raza) {
+      changedFields.raza = mascotaForm.raza;
+    }
+    if (mascotaForm.sexo !== selectedMascota.sexo) {
+      changedFields.sexo = mascotaForm.sexo;
+    }
+    if (mascotaForm.fecha_nacimiento !== (selectedMascota.fecha_nacimiento || '')) {
+      changedFields.fecha_nacimiento = mascotaForm.fecha_nacimiento || undefined;
+    }
+    if (mascotaForm.color !== selectedMascota.color) {
+      changedFields.color = mascotaForm.color;
+    }
+    if (mascotaForm.peso_actual !== (selectedMascota.peso_actual?.toString() ?? '')) {
+      changedFields.peso_actual = mascotaForm.peso_actual;
+    }
+    if (mascotaForm.tamano !== (selectedMascota.tamano ?? 'Mediano')) {
+      changedFields.tamano = mascotaForm.tamano;
+    }
+    if (mascotaForm.num_microchip_collar !== (selectedMascota.num_microchip_collar ?? '')) {
+      changedFields.num_microchip_collar = mascotaForm.num_microchip_collar;
+    }
+    if (mascotaForm.esterilizado !== (selectedMascota.esterilizado ?? false)) {
+      changedFields.esterilizado = mascotaForm.esterilizado;
+    }
+
+    return changedFields;
+  };
+
+  const handleSubmitEditMascota = async () => {
+    if (!selectedMascota) return;
+
+    if (!validateEditForm()) return;
+
     setEditingMascota(true);
     try {
-      // Crear objeto solo con los campos que han cambiado
-      const changedFields: Partial<MascotaForm> = {};
-
-      if (mascotaForm.nombre !== selectedMascota.nombre) {
-        changedFields.nombre = mascotaForm.nombre;
-      }
-      if (mascotaForm.especie !== selectedMascota.especie) {
-        changedFields.especie = mascotaForm.especie;
-      }
-      if (mascotaForm.raza !== selectedMascota.raza) {
-        changedFields.raza = mascotaForm.raza;
-      }
-      if (mascotaForm.sexo !== selectedMascota.sexo) {
-        changedFields.sexo = mascotaForm.sexo;
-      }
-      if (mascotaForm.fecha_nacimiento !== (selectedMascota.fecha_nacimiento || '')) {
-        changedFields.fecha_nacimiento = mascotaForm.fecha_nacimiento || undefined;
-      }
-      if (mascotaForm.color !== selectedMascota.color) {
-        changedFields.color = mascotaForm.color;
-      }
-      if (mascotaForm.peso_actual !== (selectedMascota.peso_actual?.toString() ?? '')) {
-        changedFields.peso_actual = mascotaForm.peso_actual;
-      }
-      if (mascotaForm.tamano !== (selectedMascota.tamano ?? 'Mediano')) {
-        changedFields.tamano = mascotaForm.tamano;
-      }
-      if (mascotaForm.num_microchip_collar !== (selectedMascota.num_microchip_collar ?? '')) {
-        changedFields.num_microchip_collar = mascotaForm.num_microchip_collar;
-      }
-      if (mascotaForm.esterilizado !== (selectedMascota.esterilizado ?? false)) {
-        changedFields.esterilizado = mascotaForm.esterilizado;
-      }
+      const changedFields = getChangedFields(selectedMascota);
 
       // Solo actualizar si hay cambios
       if (Object.keys(changedFields).length === 0) {
@@ -321,10 +299,9 @@ export const MascotasScreen = () => {
         return;
       }
 
-      await mascotasService.patchMascota(selectedMascota.id_mascota, changedFields);
+      await updateMascota(selectedMascota.id_mascota, changedFields);
       Alert.alert('Éxito', 'Mascota actualizada correctamente');
       handleCloseEditModal();
-      loadMascotas(); // Recargar la lista
     } catch (error) {
       console.error('Error updating mascota:', error);
       Alert.alert('Error', 'No se pudo actualizar la mascota. Intenta nuevamente.');
@@ -380,6 +357,22 @@ export const MascotasScreen = () => {
     );
   }
 
+  if (error) {
+    return (
+      <Container>
+        <View className="flex-1 justify-center items-center px-4">
+          <Text className="text-red-500 text-center mb-4">{error}</Text>
+          <TouchableOpacity
+            className="bg-blue-500 py-2 px-4 rounded-lg"
+            onPress={() => user?.id && getMascotasByDueño(user.id)}
+          >
+            <Text className="text-white font-semibold">Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      </Container>
+    );
+  }
+
   return (
     <Container>
       <View className="flex-1 px-4">
@@ -416,6 +409,12 @@ export const MascotasScreen = () => {
         ) : (
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
             {mascotas.map((mascota) => {
+              // Validar que la mascota y sus propiedades existan
+              if (!mascota?.nombre || !mascota?.id_mascota) {
+                console.warn('Mascota con datos incompletos encontrada:', mascota);
+                return null;
+              }
+
               const mascotaKey = mascota.nombre.toLowerCase();
               const historial = historialMedico[mascotaKey] || [];
               const isExpanded = expandedMascota === mascota.id_mascota;

@@ -23,11 +23,11 @@ export interface Mascota {
 }
 
 export interface Usuario {
-  id_usuario: string;
+  id: string;
   nombre: string;
   apellido: string;
   email: string;
-  contraseña: string;
+  contraseña?: string;
   rol: string;
   telefono?: string;
   direccion?: string;
@@ -76,13 +76,4 @@ export interface Recordatorio {
   created_at: string;
   updated_at: string;
   mascota?: Mascota;
-}
-
-export interface Usuario {
-  id_usuario: string;
-  nombre: string;
-  apellido: string;
-    email: string;
-  contraseña: string;
-  rol: string;
 }

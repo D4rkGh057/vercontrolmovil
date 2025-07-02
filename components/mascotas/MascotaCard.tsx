@@ -21,7 +21,7 @@ export const MascotaCard: React.FC<MascotaCardProps> = ({ mascota, edad, onEdit,
           </View>
           <View className="flex-1">
             <Text className="text-lg font-bold text-gray-800">{mascota.nombre}</Text>
-            <Text className="text-gray-600">Raza: {mascota.raza} • {edad} años</Text>
+            <Text className="text-gray-600">Edad: {edad} años</Text>
           </View>
           <TouchableOpacity
             className="bg-[#E3F2FD] p-2 rounded-full"
@@ -33,6 +33,7 @@ export const MascotaCard: React.FC<MascotaCardProps> = ({ mascota, edad, onEdit,
         <View className="space-y-2">
           <View className="flex-row justify-between">
             <View className="flex-1">
+              <Text className="text-gray-600 text-sm">Raza: {mascota.raza}</Text>
               <Text className="text-gray-600 text-sm">Sexo: {mascota.sexo}</Text>
               <Text className="text-gray-600 text-sm">Color: {mascota.color}</Text>
               {!!mascota.peso_actual && (

@@ -3,6 +3,7 @@ import { ScrollView, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { Container } from '../components/Container';
 import { EditProfileModal } from '../components/EditProfileModal';
 import { useAuthStore } from '../stores/authStore';
+import { useMascotasStore } from '../stores/mascotasStore';
 import {
   User,
   Settings,
@@ -16,6 +17,7 @@ import {
 
 export const PerfilScreen = () => {
   const { user, logout, updateProfile } = useAuthStore();
+  const { mascotas, getMascotasByDueño } = useMascotasStore();
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleLogout = () => {
@@ -54,6 +56,23 @@ export const PerfilScreen = () => {
   const debugUser = () => {
     console.log('🔍 Datos del usuario actual:', JSON.stringify(user, null, 2));
     Alert.alert('Debug', `Usuario: ${JSON.stringify(user, null, 2)}`);
+  };
+
+  const debugMascotas = async () => {
+    if (!user?.id) {
+      Alert.alert('Error', 'No hay usuario logueado');
+      return;
+    }
+    
+    try {
+      console.log('🐕 Cargando mascotas del usuario:', user.id);
+      await getMascotasByDueño(user.id);
+      console.log('🐕 Mascotas cargadas:', JSON.stringify(mascotas, null, 2));
+      Alert.alert('Debug Mascotas', `Mascotas encontradas: ${mascotas.length}\n${mascotas.map(m => m.nombre).join(', ')}`);
+    } catch (error) {
+      console.error('❌ Error cargando mascotas:', error);
+      Alert.alert('Error', 'No se pudieron cargar las mascotas');
+    }
   };
 
   return (
@@ -147,9 +166,25 @@ export const PerfilScreen = () => {
           <Text className="text-center text-gray-600 text-sm mb-2">
             VetControl Mobile
           </Text>
-          <Text className="text-center text-gray-500 text-xs">
+          <Text className="text-center text-gray-500 text-xs mb-3">
             Versión 1.0.0 • Build 2025.01
           </Text>
+          
+          {/* Debug Buttons */}
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className="flex-1 bg-gray-200 py-2 rounded"
+              onPress={debugUser}
+            >
+              <Text className="text-center text-xs text-gray-600">Debug Usuario</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-1 bg-blue-200 py-2 rounded"
+              onPress={debugMascotas}
+            >
+              <Text className="text-center text-xs text-blue-600">Test Mascotas</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Logout Button */}
