@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { Container } from '../components/Container';
+import { EditProfileModal } from '../components/EditProfileModal';
 import { useAuthStore } from '../stores/authStore';
-import { 
-  User, 
-  Settings, 
-  HelpCircle, 
-  Info, 
+import {
+  User,
+  Settings,
+  HelpCircle,
+  Info,
   LogOut,
-  ChevronRight 
+  ChevronRight,
+  Phone,
+  MapPinHouse
 } from 'lucide-react-native';
 
 export const PerfilScreen = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateProfile } = useAuthStore();
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -20,8 +24,8 @@ export const PerfilScreen = () => {
       '¿Estás seguro de que quieres cerrar sesión?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Cerrar sesión', 
+        {
+          text: 'Cerrar sesión',
           style: 'destructive',
           onPress: () => {
             logout().catch(console.error);
@@ -32,7 +36,7 @@ export const PerfilScreen = () => {
   };
 
   const handleEditProfile = () => {
-    Alert.alert('Editar Perfil', 'Funcionalidad próximamente disponible');
+    setShowEditModal(true);
   };
 
   const handleSettings = () => {
@@ -41,6 +45,15 @@ export const PerfilScreen = () => {
 
   const handleHelp = () => {
     Alert.alert('Ayuda', 'Para soporte técnico, contacta a: soporte@vetcontrol.com');
+  };
+
+  const handleUpdateProfile = async (userData: any) => {
+    await updateProfile(userData);
+  };
+
+  const debugUser = () => {
+    console.log('🔍 Datos del usuario actual:', JSON.stringify(user, null, 2));
+    Alert.alert('Debug', `Usuario: ${JSON.stringify(user, null, 2)}`);
   };
 
   return (
@@ -59,10 +72,22 @@ export const PerfilScreen = () => {
             <Text className="text-xl font-bold text-gray-800">
               {user?.nombre} {user?.apellido}
             </Text>
-            <Text className="text-gray-600">{user?.email}</Text>
+            <Text className="text-gray-600 mb-1">{user?.email}</Text>
+            {user?.telefono && (
+              <View className="flex-row items-center gap-1">
+                <Phone size={15} color="#6B7280" />
+                <Text className="text-gray-600 mb-1">{user.telefono}</Text>
+              </View>
+            )}
+            {user?.direccion && (
+              <View className="flex-row items-center gap-1">
+                <MapPinHouse size={15} color="#6B7280" />
+                <Text className="text-gray-600 text-center">{user.direccion}</Text>
+              </View>
+            )}
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             className="bg-blue-500 py-3 rounded-lg"
             onPress={handleEditProfile}
           >
@@ -74,7 +99,7 @@ export const PerfilScreen = () => {
 
         {/* Menu Options */}
         <View className="bg-white rounded-lg mb-4 shadow-sm border border-gray-200">
-          <TouchableOpacity 
+          <TouchableOpacity
             className="flex-row items-center p-4 border-b border-gray-100"
             onPress={handleSettings}
           >
@@ -88,7 +113,7 @@ export const PerfilScreen = () => {
             <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             className="flex-row items-center p-4 border-b border-gray-100"
             onPress={handleHelp}
           >
@@ -102,7 +127,7 @@ export const PerfilScreen = () => {
             <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             className="flex-row items-center p-4"
             onPress={() => Alert.alert('Acerca de', 'VetControl Mobile v1.0.0\nDesarrollado por SoftwareSquad !404')}
           >
@@ -128,7 +153,7 @@ export const PerfilScreen = () => {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-red-500 py-4 rounded-lg mb-6 flex-row items-center justify-center"
           onPress={handleLogout}
         >
@@ -141,6 +166,16 @@ export const PerfilScreen = () => {
         {/* Safety padding for bottom navigation */}
         <View className="h-4" />
       </ScrollView>
+
+      {/* Edit Profile Modal */}
+      {user && (
+        <EditProfileModal
+          visible={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          user={user}
+          onSave={handleUpdateProfile}
+        />
+      )}
     </Container>
   );
 };
