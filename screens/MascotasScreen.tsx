@@ -43,6 +43,10 @@ interface MascotaForm {
   sexo: string;
   fecha_nacimiento: string;
   color: string;
+  peso_actual: string;
+  tamano: 'Pequeño' | 'Mediano' | 'Grande';
+  num_microchip_collar: string;
+  esterilizado: boolean;
 }
 
 export const MascotasScreen = () => {
@@ -61,7 +65,11 @@ export const MascotasScreen = () => {
     raza: '',
     sexo: 'Macho',
     fecha_nacimiento: '',
-    color: ''
+    color: '',
+    peso_actual: '',
+    tamano: 'Mediano',
+    num_microchip_collar: '',
+    esterilizado: false
   });
 
   // Datos de ejemplo para el historial médico
@@ -103,7 +111,43 @@ export const MascotasScreen = () => {
   const loadMascotas = async () => {
     try {
       const response = await mascotasService.getMascotas();
-      setMascotas(response.data);
+      // Agregar datos de ejemplo para campos que no están en la API
+      const mascotasConDatos = response.data.map((mascota: Mascota) => {
+        const nombre = mascota.nombre.toLowerCase();
+
+        // Datos de ejemplo para Boby
+        if (nombre === 'boby') {
+          return {
+            ...mascota,
+            peso_actual: 25.5,
+            tamano: 'Mediano',
+            num_microchip_collar: '950012345678900',
+            esterilizado: true
+          };
+        }
+
+        // Datos de ejemplo para Luna
+        if (nombre === 'luna') {
+          return {
+            ...mascota,
+            peso_actual: 4.2,
+            tamano: 'Pequeño',
+            num_microchip_collar: '950098765432100',
+            esterilizado: true
+          };
+        }
+
+        // Para otras mascotas, agregar datos predeterminados
+        return {
+          ...mascota,
+          peso_actual: mascota.especie === 'Perro' ? 15.0 : 3.5,
+          tamano: 'Mediano',
+          num_microchip_collar: '',
+          esterilizado: false
+        };
+      });
+
+      setMascotas(mascotasConDatos);
     } catch (error) {
       console.error('Error loading mascotas:', error);
       Alert.alert('Error', 'No se pudieron cargar las mascotas');
@@ -128,7 +172,11 @@ export const MascotasScreen = () => {
       raza: '',
       sexo: 'Macho',
       fecha_nacimiento: '',
-      color: ''
+      color: '',
+      peso_actual: '',
+      tamano: 'Mediano',
+      num_microchip_collar: '',
+      esterilizado: false
     });
   };
 
@@ -153,8 +201,9 @@ export const MascotasScreen = () => {
     try {
       const mascotaData = {
         ...mascotaForm,
-        id_cliente: {
-          id_cliente: user?.id_usuario ?? '636fe979-89b8-4d80-a22f-abe93bd2d15e'
+        peso_actual: parseFloat(mascotaForm.peso_actual) || 0,
+        id_usuario: {
+          id_usuario: user?.id_usuario ?? 'c2fc1688-0c58-4e21-8c38-b5bdd1680910'
         }
       };
 
@@ -172,13 +221,23 @@ export const MascotasScreen = () => {
 
   const handleEditMascota = (mascota: Mascota) => {
     setSelectedMascota(mascota);
+    
+    // Convertir tamano a tipo específico
+    const tamanoValue = mascota.tamano === 'Pequeño' || mascota.tamano === 'Mediano' || mascota.tamano === 'Grande' 
+      ? mascota.tamano 
+      : 'Mediano';
+    
     setMascotaForm({
       nombre: mascota.nombre,
       especie: mascota.especie,
       raza: mascota.raza,
       sexo: mascota.sexo,
       fecha_nacimiento: mascota.fecha_nacimiento || '',
-      color: mascota.color
+      color: mascota.color,
+      peso_actual: mascota.peso_actual?.toString() ?? '',
+      tamano: tamanoValue,
+      num_microchip_collar: mascota.num_microchip_collar ?? '',
+      esterilizado: mascota.esterilizado ?? false
     });
     setShowEditModal(true);
   };
@@ -192,7 +251,11 @@ export const MascotasScreen = () => {
       raza: '',
       sexo: 'Macho',
       fecha_nacimiento: '',
-      color: ''
+      color: '',
+      peso_actual: '',
+      tamano: 'Mediano',
+      num_microchip_collar: '',
+      esterilizado: false
     });
   };
 
@@ -219,7 +282,7 @@ export const MascotasScreen = () => {
     try {
       // Crear objeto solo con los campos que han cambiado
       const changedFields: Partial<MascotaForm> = {};
-      
+
       if (mascotaForm.nombre !== selectedMascota.nombre) {
         changedFields.nombre = mascotaForm.nombre;
       }
@@ -237,6 +300,18 @@ export const MascotasScreen = () => {
       }
       if (mascotaForm.color !== selectedMascota.color) {
         changedFields.color = mascotaForm.color;
+      }
+      if (mascotaForm.peso_actual !== (selectedMascota.peso_actual?.toString() ?? '')) {
+        changedFields.peso_actual = mascotaForm.peso_actual;
+      }
+      if (mascotaForm.tamano !== (selectedMascota.tamano ?? 'Mediano')) {
+        changedFields.tamano = mascotaForm.tamano;
+      }
+      if (mascotaForm.num_microchip_collar !== (selectedMascota.num_microchip_collar ?? '')) {
+        changedFields.num_microchip_collar = mascotaForm.num_microchip_collar;
+      }
+      if (mascotaForm.esterilizado !== (selectedMascota.esterilizado ?? false)) {
+        changedFields.esterilizado = mascotaForm.esterilizado;
       }
 
       // Solo actualizar si hay cambios
@@ -258,7 +333,7 @@ export const MascotasScreen = () => {
     }
   };
 
-  const updateFormField = (field: keyof MascotaForm, value: string) => {
+  const updateFormField = (field: keyof MascotaForm, value: string | boolean) => {
     setMascotaForm(prev => ({ ...prev, [field]: value }));
   };
 

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Usuario } from '../types';
-import { authService } from '../services/api';
+import { authService, usuariosService } from '../services/api';
 import { logger } from '../services/logger';
 
 interface AuthState {
@@ -18,6 +18,7 @@ interface AuthState {
   logout: () => Promise<void>;
   checkAuthState: () => Promise<void>;
   setLoading: (loading: boolean) => void;
+  updateProfile: (userData: Partial<Usuario>) => Promise<void>;
 }
 
 interface RegisterData {
@@ -104,12 +105,14 @@ export const useAuthStore = create<AuthState>()(
                 
                 // Crear objeto usuario a partir del JWT
                 user = {
-                  id: decodedPayload.sub || decodedPayload.userId || decodedPayload.id,
+                  id_usuario: decodedPayload.sub ?? decodedPayload.userId ?? decodedPayload.id ?? decodedPayload.id_usuario,
                   email: email, // Usamos el email del formulario
-                  nombre: decodedPayload.username || decodedPayload.nombre || 'Usuario',
-                  apellido: decodedPayload.apellido || '',
-                  rol: decodedPayload.rol || decodedPayload.role || 'cliente',
-                  telefono: decodedPayload.telefono || ''
+                  nombre: decodedPayload.username ?? decodedPayload.nombre ?? 'Usuario',
+                  apellido: decodedPayload.apellido ?? '',
+                  rol: decodedPayload.rol ?? decodedPayload.role ?? 'cliente',
+                  telefono: decodedPayload.telefono ?? '',
+                  direccion: decodedPayload.direccion ?? '',
+                  contraseña: '' // No almacenamos la contraseña
                 };
                 
                 logger.info('�👤 Datos del usuario creados desde JWT', user);
@@ -118,12 +121,14 @@ export const useAuthStore = create<AuthState>()(
                 
                 // Como último recurso, crear un usuario básico
                 user = {
-                  id: 'temp_' + Date.now(),
+                  id_usuario: 'temp_' + Date.now(),
                   email: email,
                   nombre: 'Usuario',
                   apellido: '',
                   rol: 'cliente',
-                  telefono: ''
+                  telefono: '',
+                  direccion: '',
+                  contraseña: ''
                 };
                 
                 logger.info('👤 Datos del usuario creados por defecto', user);
@@ -260,6 +265,47 @@ export const useAuthStore = create<AuthState>()(
 
       setLoading: (loading: boolean) => {
         set({ isLoading: loading });
+      },
+
+      updateProfile: async (userData: Partial<Usuario>) => {
+        try {
+          const { user } = get();
+          if (!user) {
+            throw new Error('Usuario no autenticado');
+          }
+
+          // Intentar diferentes formas de obtener el ID del usuario
+          const userId = user.id_usuario ?? (user as any).id ?? (user as any).userId;
+          if (!userId) {
+            logger.error('❌ No se pudo obtener el ID del usuario', user);
+            throw new Error('ID de usuario no encontrado');
+          }
+
+          set({ isLoading: true });
+          logger.info('🔄 Actualizando perfil de usuario', { userId, userData });
+
+          // Llamar a la API para actualizar el perfil
+          await usuariosService.updateUsuario(userId, userData);
+          
+          // Actualizar el usuario en el estado local
+          const updatedUser = { ...user, ...userData };
+          
+          // Guardar en AsyncStorage
+          await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+          
+          // Actualizar estado
+          set({
+            user: updatedUser,
+            isLoading: false,
+          });
+
+          logger.info('✅ Perfil actualizado exitosamente');
+        } catch (error: any) {
+          set({ isLoading: false });
+          logger.error('❌ Error actualizando perfil', error);
+          console.error('Update profile error:', error);
+          throw new Error(error.response?.data?.message ?? 'Error al actualizar perfil');
+        }
       },
     }),
     {

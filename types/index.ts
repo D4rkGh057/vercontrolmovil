@@ -15,7 +15,11 @@ export interface Mascota {
   sexo: string;
   fecha_nacimiento: string;
   color: string;
-  id_cliente: ClienteAPI;
+  peso_actual: number;
+  tamano: string;
+  num_microchip_collar: string;
+  esterilizado: boolean;
+  id_usuario: Usuario;
 }
 
 export interface Usuario {
@@ -25,6 +29,8 @@ export interface Usuario {
   email: string;
   contraseña: string;
   rol: string;
+  telefono?: string;
+  direccion?: string;
 }
 
 export interface Cita {
@@ -76,7 +82,7 @@ export interface Usuario {
   id_usuario: string;
   nombre: string;
   apellido: string;
-  email: string;
+    email: string;
   contraseña: string;
   rol: string;
 }

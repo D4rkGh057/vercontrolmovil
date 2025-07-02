@@ -103,3 +103,8 @@ export const recordatoriosService = {
   updateRecordatorio: (id: string, data: any) => api.put(`/recordatorios/${id}`, data),
   deleteRecordatorio: (id: string) => api.delete(`/recordatorios/${id}`),
 };
+
+export const usuariosService = {
+  getUsuario: (id: string) => api.get(`/usuarios/${id}`),
+  updateUsuario: (id: string, data: any) => api.patch(`/usuarios/${id}`, data),
+};

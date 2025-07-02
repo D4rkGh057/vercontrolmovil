@@ -18,6 +18,10 @@ interface MascotaForm {
   sexo: string;
   fecha_nacimiento: string;
   color: string;
+  peso_actual: string;
+  tamano: 'Pequeño' | 'Mediano' | 'Grande';
+  num_microchip_collar: string;
+  esterilizado: boolean;
 }
 
 interface EditMascotaModalProps {
@@ -26,7 +30,7 @@ interface EditMascotaModalProps {
   onSubmit: () => void;
   editingMascota: boolean;
   mascotaForm: MascotaForm;
-  updateFormField: (field: keyof MascotaForm, value: string) => void;
+  updateFormField: (field: keyof MascotaForm, value: string | boolean) => void;
   originalMascota: Mascota | null;
 }
 
@@ -200,7 +204,7 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
             </View>
 
             {/* Color */}
-            <View className="mb-6">
+            <View className="mb-4">
               <Text className="text-sm font-medium text-gray-700 mb-2">
                 Color *
               </Text>
@@ -211,6 +215,105 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
                 className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
                 placeholderTextColor="#9CA3AF"
               />
+            </View>
+
+            {/* Peso */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Peso (kg)
+              </Text>
+              <TextInput
+                value={mascotaForm.peso_actual}
+                onChangeText={(value) => updateFormField('peso_actual', value)}
+                placeholder="Ej: 15.5"
+                className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="decimal-pad"
+              />
+            </View>
+
+            {/* Tamaño */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Tamaño
+              </Text>
+              <View className="flex-row space-x-3">
+                {(['Pequeño', 'Mediano', 'Grande'] as const).map((tamaño) => (
+                  <TouchableOpacity
+                    key={tamaño}
+                    onPress={() => updateFormField('tamano', tamaño)}
+                    className={`flex-1 py-3 px-4 rounded-lg border ${
+                      mascotaForm.tamano === tamaño
+                        ? 'bg-blue-50 border-blue-500'
+                        : 'bg-gray-50 border-gray-300'
+                    }`}
+                  >
+                    <Text
+                      className={`text-center font-medium ${
+                        mascotaForm.tamano === tamaño ? 'text-blue-600' : 'text-gray-600'
+                      }`}
+                    >
+                      {tamaño}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Número de microchip */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Número de Microchip
+              </Text>
+              <TextInput
+                value={mascotaForm.num_microchip_collar}
+                onChangeText={(value) => updateFormField('num_microchip_collar', value)}
+                placeholder="Ej: MC001234567890"
+                className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            {/* Esterilizado */}
+            <View className="mb-6">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Estado de esterilización
+              </Text>
+              <View className="flex-row space-x-3">
+                <TouchableOpacity
+                  onPress={() => updateFormField('esterilizado', true)}
+                  className={`flex-1 py-3 px-4 rounded-lg border ${
+                    mascotaForm.esterilizado === true
+                      ? 'bg-blue-50 border-blue-500'
+                      : 'bg-gray-50 border-gray-300'
+                  }`}
+                >
+                  <Text
+                    className={`text-center font-medium ${
+                      mascotaForm.esterilizado === true ? 'text-blue-600' : 'text-gray-600'
+                    }`}
+                  >
+                    Esterilizado
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => updateFormField('esterilizado', false)}
+                  className={`flex-1 py-3 px-4 rounded-lg border ${
+                    mascotaForm.esterilizado === false
+                      ? 'bg-blue-50 border-blue-500'
+                      : 'bg-gray-50 border-gray-300'
+                  }`}
+                >
+                  <Text
+                    className={`text-center font-medium ${
+                      mascotaForm.esterilizado === false ? 'text-blue-600' : 'text-gray-600'
+                    }`}
+                  >
+                    No esterilizado
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
 
