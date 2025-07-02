@@ -276,10 +276,10 @@ export const LoginScreen = () => {
       >
         <View className="flex-1 justify-center px-6">
           {/* Header */}
-          <View className="items-center mb-8">
+          <View className="items-center mb-1">
             <Image
               source={require('../assets/VetControl.png')}
-              className="w-24 h-24 mb-4"
+              className="h-16 mb-2"
               resizeMode="contain"
             />
             <Text className="text-lg text-gray-600 text-center">
