@@ -1,47 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, RefreshControl, ActivityIndicator, Alert, Pressable, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Container } from '../components/Container';
-import { citasService, mascotasService, recordatoriosService } from '../services/api';
-import { Cita, Mascota, Recordatorio } from '../types';
-import { 
+import { citasService, mascotasService /*, recordatoriosService*/ } from '../services/api';
+import { Cita, Mascota /*, Recordatorio*/ } from '../types';
+import {
   Heart,
   Calendar,
   MapPin,
-  Clock,
-  ChevronRight
+  Dog,
+  Cat
 } from 'lucide-react-native';
+import { useAuthStore } from 'stores/authStore';
 
 export const HomeScreen = () => {
+  const navigation = useNavigation();
+  const { user } = useAuthStore();
   const [citas, setCitas] = useState<Cita[]>([]);
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
-  const [recordatorios, setRecordatorios] = useState<Recordatorio[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = async () => {
     try {
-      const [citasResponse, mascotasResponse, recordatoriosResponse] = await Promise.all([
+      console.log('🔍 HomeScreen - Iniciando carga de datos...');
+      console.log('👤 Usuario actual:', user);
+      console.log('🆔 ID del usuario:', user?.id);
+
+      if (!user?.id) {
+        console.error('❌ Usuario no autenticado o sin ID');
+        throw new Error('El usuario no está autenticado correctamente');
+      }
+
+      console.log('🚀 Realizando llamadas a la API...');
+      const [citasResponse, mascotasResponse] = await Promise.all([
         citasService.getCitas(),
-        mascotasService.getMascotas(),
-        recordatoriosService.getRecordatorios()
+        mascotasService.getMascotasByDueño(user.id),
       ]);
-      
+
+      console.log('📋 Respuesta de citas:', citasResponse.data);
+      console.log('🐕 Respuesta de mascotas:', mascotasResponse.data);
+
       // Filtrar próximas citas
       const proximasCitas = citasResponse.data
         .filter((cita: Cita) => cita.estado === 'Programada')
         .slice(0, 3);
-      
+
       setCitas(proximasCitas);
+      console.log("✅ Numero de Mascotas cargadas:", mascotasResponse.data.length);
       setMascotas(mascotasResponse.data);
-      
-      // Filtrar recordatorios pendientes
-      const recordatoriosPendientes = recordatoriosResponse.data
-        .filter((recordatorio: Recordatorio) => !recordatorio.completado)
-        .slice(0, 3);
-      
-      setRecordatorios(recordatoriosPendientes);
-    } catch (error) {
-      console.error('Error loading data:', error);
+
+      console.log('🎉 Carga de datos completada exitosamente');
+    } catch (error: any) {
+      console.error('💥 Error loading data:', error);
+      console.error('📊 Detalles del error:', {
+        message: error?.message ?? 'Error desconocido',
+        response: error?.response?.data,
+        status: error?.response?.status
+      });
       Alert.alert('Error', 'No se pudieron cargar los datos');
     } finally {
       setLoading(false);
@@ -76,7 +92,7 @@ export const HomeScreen = () => {
 
   return (
     <Container>
-      <ScrollView 
+      <ScrollView
         className="flex-1 bg-neutral-50"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -106,23 +122,26 @@ export const HomeScreen = () => {
         <View className="px-4 mb-6">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-lg font-bold text-neutral-800">Mis Mascotas</Text>
-            <TouchableOpacity onPress={() => console.log('Ver todas las mascotas')}>
+            <TouchableOpacity onPress={() => (navigation as any).navigate('Mascotas')}>
               <Text className="text-primary-500 font-bold">Ver todas</Text>
             </TouchableOpacity>
           </View>
-          
+
           {mascotas.length > 0 ? (
             mascotas.slice(0, 2).map((mascota) => (
               <View key={mascota.id_mascota} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
                 <View className="flex-row items-center">
                   <View className="w-12 h-12 bg-neutral-200 rounded-full mr-3 items-center justify-center">
-                    <Text className="text-xl">{mascota.especie === 'Perro' ? '🐕' : '🐱'}</Text>
+                    {mascota.especie === 'Perro' ? (
+                      <Dog size={24} color="#94a3b8" />
+                    ) : (
+                      <Cat size={24} color="#94a3b8" />
+                    )}
                   </View>
                   <View className="flex-1">
                     <Text className="font-bold text-neutral-800 text-base">{mascota.nombre}</Text>
                     <Text className="text-neutral-600 text-sm">{mascota.raza} • {mascota.sexo}</Text>
                   </View>
-                  <ChevronRight size={20} color="#94a3b8" />
                 </View>
               </View>
             ))
@@ -141,7 +160,7 @@ export const HomeScreen = () => {
               <Text className="text-primary-500 font-bold">Ver todas</Text>
             </TouchableOpacity>
           </View>
-          
+
           {citas.length > 0 ? (
             citas.map((cita) => (
               <View key={cita.id_cita} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
@@ -167,33 +186,6 @@ export const HomeScreen = () => {
             </View>
           )}
         </View>
-
-        {/* Recordatorios */}
-        {recordatorios.length > 0 && (
-          <View className="px-4 mb-6">
-            <Text className="text-lg font-bold text-neutral-800 mb-4">Recordatorios</Text>
-            
-            {recordatorios.map((recordatorio) => (
-              <View key={recordatorio.id} className="bg-white rounded-xl p-4 mb-3 shadow-sm border-l-4 border-warning-400">
-                <View className="flex-row justify-between items-start">
-                  <View className="flex-1">
-                    <Text className="font-bold text-neutral-800">{recordatorio.mascota?.nombre}</Text>
-                    <Text className="text-neutral-600 text-sm">{recordatorio.descripcion}</Text>
-                    <View className="flex-row items-center mt-1">
-                      <Clock size={14} color="#f59e0b" />
-                      <Text className="text-warning-600 text-xs ml-1">
-                        Vence: {formatDate(recordatorio.fecha_programada)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View className="w-6 h-6 bg-warning-100 rounded-full items-center justify-center">
-                    <Text className="text-warning-600 text-xs">!</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
       </ScrollView>
     </Container>
   );

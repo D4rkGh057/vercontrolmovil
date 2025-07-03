@@ -169,22 +169,6 @@ export const PerfilScreen = () => {
           <Text className="text-center text-gray-500 text-xs mb-3">
             Versión 1.0.0 • Build 2025.01
           </Text>
-          
-          {/* Debug Buttons */}
-          <View className="flex-row gap-2">
-            <TouchableOpacity
-              className="flex-1 bg-gray-200 py-2 rounded"
-              onPress={debugUser}
-            >
-              <Text className="text-center text-xs text-gray-600">Debug Usuario</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-1 bg-blue-200 py-2 rounded"
-              onPress={debugMascotas}
-            >
-              <Text className="text-center text-xs text-blue-600">Test Mascotas</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Logout Button */}
