@@ -85,7 +85,7 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
               <Text className="text-sm font-medium text-gray-700 mb-2">
                 Especie *
               </Text>
-              <View className="flex-row space-x-3">
+              <View className="flex-row gap-3">
                 <TouchableOpacity
                   onPress={() => updateFormField('especie', 'Perro')}
                   className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-lg border ${
@@ -149,7 +149,7 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
               <Text className="text-sm font-medium text-gray-700 mb-2">
                 Sexo *
               </Text>
-              <View className="flex-row space-x-3">
+              <View className="flex-row gap-3">
                 <TouchableOpacity
                   onPress={() => updateFormField('sexo', 'Macho')}
                   className={`flex-1 py-3 px-4 rounded-lg border ${
@@ -237,7 +237,7 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
               <Text className="text-sm font-medium text-gray-700 mb-2">
                 Tamaño
               </Text>
-              <View className="flex-row space-x-3">
+              <View className="flex-row gap-3">
                 {(['Pequeño', 'Mediano', 'Grande'] as const).map((tamaño) => (
                   <TouchableOpacity
                     key={tamaño}
@@ -279,7 +279,7 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
               <Text className="text-sm font-medium text-gray-700 mb-2">
                 Estado de esterilización
               </Text>
-              <View className="flex-row space-x-3">
+              <View className="flex-row gap-3">
                 <TouchableOpacity
                   onPress={() => updateFormField('esterilizado', true)}
                   className={`flex-1 py-3 px-4 rounded-lg border ${
@@ -319,7 +319,7 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
 
           {/* Footer */}
           <View className="p-6 pt-4 border-t border-gray-100">
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-3">
               <TouchableOpacity
                 onPress={onClose}
                 className="flex-1 py-3 px-4 rounded-lg border border-gray-300 bg-gray-50"

@@ -182,7 +182,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </ScrollView>
 
           {/* Buttons */}
-          <View className="flex-row p-4 border-t border-gray-200 space-x-3">
+          <View className="flex-row p-4 border-t border-gray-200 gap-3">
             <TouchableOpacity
               className="flex-1 py-3 rounded-lg border border-gray-300"
               onPress={handleClose}
