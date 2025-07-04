@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { Container } from '../components/Container';
-import { RecordatorioCard, RecordatorioFilters, EmptyRecordatorios } from '../components/recordatorios';
+import { RecordatorioCard, RecordatorioFilters, EmptyRecordatorios, AddRecordatorioModal } from '../components/recordatorios';
 import { useRecordatoriosStore } from '../stores/recordatoriosStore';
 import {
   Plus
@@ -13,11 +13,13 @@ export const RecordatoriosScreen = () => {
     loading, 
     getRecordatorios, 
     toggleComplete,
-    deleteRecordatorio
+    deleteRecordatorio,
+    addRecordatorio
   } = useRecordatoriosStore();
   
   const [filter, setFilter] = useState<'todos' | 'pendientes' | 'completados'>('pendientes');
   const [refreshing, setRefreshing] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const loadRecordatorios = async () => {
     try {
@@ -72,7 +74,19 @@ export const RecordatoriosScreen = () => {
   };
 
   const handleAddRecordatorio = () => {
-    Alert.alert('Nuevo Recordatorio', 'Funcionalidad próximamente disponible');
+    setShowAddModal(true);
+  };
+
+  const handleCreateRecordatorio = async (recordatorioData: any) => {
+    try {
+      await addRecordatorio(recordatorioData);
+      // Recargar la lista de recordatorios
+      await getRecordatorios();
+    } catch (error) {
+      // Re-lanzar el error para que el modal lo maneje
+      console.error('Error in handleCreateRecordatorio:', error);
+      throw error;
+    }
   };
 
   const filteredRecordatorios = recordatorios.filter(recordatorio => {
@@ -156,6 +170,13 @@ export const RecordatoriosScreen = () => {
             </View>
           </ScrollView>
         )}
+        
+        {/* Modal para añadir recordatorio */}
+        <AddRecordatorioModal
+          visible={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleCreateRecordatorio}
+        />
       </View>
     </Container>
   );
