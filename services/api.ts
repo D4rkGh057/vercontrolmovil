@@ -19,8 +19,8 @@ api.interceptors.request.use(async (config) => {
     
     // Log de la petición
     logger.apiRequest(
-      config.method || 'unknown', 
-      config.url || 'unknown', 
+      config.method ?? 'unknown', 
+      config.url ?? 'unknown', 
       config.data
     );
   } catch (error) {

@@ -9,7 +9,8 @@ import {
   Calendar,
   MapPin,
   Dog,
-  Cat
+  Cat,
+  HeartHandshake
 } from 'lucide-react-native';
 import { useAuthStore } from 'stores/authStore';
 
@@ -43,7 +44,7 @@ export const HomeScreen = () => {
 
       // Filtrar próximas citas
       const proximasCitas = citasResponse.data
-        .filter((cita: Cita) => cita.estado === 'Programada')
+        .filter((cita: Cita) => cita.estado === 'Pendiente')
         .slice(0, 3);
 
       setCitas(proximasCitas);
@@ -100,7 +101,9 @@ export const HomeScreen = () => {
       >
         {/* Header */}
         <View className="bg-primary-500 rounded-2xl mx-4 mt-10 p-6 mb-6">
-          <Text className="text-white text-2xl font-bold">¡Hola! 👋</Text>
+          <View className="flex-row items-center justify-left">
+            <Text className="text-white text-2xl font-bold">¡Hola! {user?.nombre} </Text> <HeartHandshake size={24} color="#fff" />
+          </View>
           <Text className="text-white/90 text-base mt-1">Cuida a tus mascotas con amor</Text>
         </View>
 
@@ -176,7 +179,7 @@ export const HomeScreen = () => {
                 </View>
                 <View className="flex-row items-center mt-1">
                   <MapPin size={16} color="#94a3b8" />
-                  <Text className="text-neutral-600 text-sm ml-2">Dr. {cita.id_usuario?.nombre}</Text>
+                  <Text className="text-neutral-600 text-sm ml-2">Dr. {cita.id_usuario?.nombre} {cita.id_usuario.apellido}</Text>
                 </View>
               </View>
             ))

@@ -37,7 +37,7 @@ export interface Cita {
   id_cita: string;
   fecha_hora: string;
   motivo: string;
-  estado: 'Programada' | 'Completada' | 'Cancelada';
+  estado: 'Programada' | 'Completada' | 'Cancelada' | 'Pendiente';
   id_mascota: Mascota;
   id_usuario: Usuario;
 }
