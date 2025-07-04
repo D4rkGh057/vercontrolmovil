@@ -5,12 +5,15 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { useAuthStore } from './stores/authStore';
+import { STRIPE_CONFIG } from './constants/stripe';
 import { LoginScreen } from './screens/LoginScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { MascotasScreen } from './screens/MascotasScreen';
 import { CitasScreen } from './screens/CitasScreen';
 import { RecordatoriosScreen } from './screens/RecordatoriosScreen';
+import { PagosScreen } from './screens/PagosScreen';
 import { PerfilScreen } from './screens/PerfilScreen';
 import { TabIcon } from './components/TabIcon';
 import { 
@@ -18,7 +21,8 @@ import {
   Calendar, 
   Bell, 
   User, 
-  Heart
+  Heart,
+  CreditCard
 } from 'lucide-react-native';
 import './global.css';
 
@@ -142,6 +146,15 @@ const AppContent = () => {
           }}
         />
         <Tab.Screen 
+          name="Pagos" 
+          component={PagosScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} IconComponent={CreditCard} />
+            ),
+          }}
+        />
+        <Tab.Screen 
           name="Perfil" 
           component={PerfilScreen}
           options={{
@@ -158,7 +171,12 @@ const AppContent = () => {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AppContent />
+      <StripeProvider
+        publishableKey={STRIPE_CONFIG.PUBLISHABLE_KEY}
+        merchantIdentifier="merchant.com.vetcontrol"
+      >
+        <AppContent />
+      </StripeProvider>
       <StatusBar style="auto" />
     </SafeAreaProvider>
   );

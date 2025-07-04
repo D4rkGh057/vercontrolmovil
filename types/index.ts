@@ -78,3 +78,58 @@ export interface Recordatorio {
   id_mascota: Mascota;
   notification_id?: string; // ID de la notificación programada
 }
+
+// Interfaces para facturas
+export interface Invoice {
+  fecha_emision: string;
+  total: number;
+  metodo_pago: string;
+  id_cliente: string;
+  id_empresa: string;
+  estado?: string;
+}
+
+export interface InvoiceDetail {
+  descripcion: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+  id_factura: { id_factura: number };
+  id_lote?: { id_lote: number };
+}
+
+export interface Pago {
+  id_pago?: string;
+  id_factura?: string; // Para compatibilidad con el modelo de facturas
+  concepto?: string;
+  descripcion?: string;
+  monto?: number;
+  total?: number; // Para compatibilidad con el modelo de facturas
+  fecha_emision: string;
+  fecha_vencimiento: string;
+  fecha_pago?: string;
+  estado: 'pagado' | 'pendiente' | 'anulado' | 'vencido';
+  metodo_pago?: 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Stripe' | 'Otro';
+  id_mascota?: Mascota;
+  id_usuario?: Usuario;
+  id_cliente?: string; // Para compatibilidad con el modelo de facturas
+  id_empresa?: string; // Para compatibilidad con el modelo de facturas
+  comprobante_url?: string;
+}
+
+// Tipos para Stripe
+export interface StripePaymentData {
+  paymentIntentId: string;
+  amount: number;
+  currency: string;
+  status: 'succeeded' | 'processing' | 'requires_payment_method' | 'canceled';
+  created: number;
+  description?: string;
+}
+
+export interface PaymentResult {
+  success: boolean;
+  paymentIntentId?: string;
+  error?: string;
+  data?: StripePaymentData;
+}

@@ -54,7 +54,7 @@ api.interceptors.response.use(
         console.error('Error clearing auth data:', storageError);
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(error instanceof Error ? error : new Error(String(error)));
   }
 );
 
@@ -100,4 +100,40 @@ export const recordatoriosService = {
 export const usuariosService = {
   getUsuario: (id: string) => api.get(`/usuarios/${id}`),
   updateUsuario: (id: string, data: any) => api.patch(`/usuarios/${id}`, data),
+  getProfile: () => api.get('/usuarios/profile'), // Obtener perfil del usuario autenticado
+};
+
+// Servicios de pagos (usando endpoint de facturas)
+export const pagosService = {
+  getPagos: () => api.get('/facturas'),
+  getPagosByUsuario: (userId: string) => api.get(`/facturas/usuario/${userId}`),
+  getPago: (id: string) => api.get(`/facturas/${id}`),
+  createPago: (data: any) => api.post('/facturas', data),
+  updatePago: (id: string, data: any) => api.patch(`/facturas/${id}`, data),
+  marcarComoPagado: (id: string, data: any) => api.patch(`/facturas/${id}/pagar`, data),
+  deletePago: (id: string) => api.delete(`/facturas/${id}`),
+};
+
+export const stripeService = {
+  createCheckoutSession: ({
+    invoiceId,
+    amount,
+    client,
+  }: {
+    invoiceId: string;
+    amount: number;
+    client: string;
+  }) =>
+    api.post('/stripe/create-checkout-session', {
+      invoiceId,
+      amount,
+      client,
+    }),
+
+  // Endpoint corregido según documentación oficial de Stripe
+  createPaymentSheet: ({ amount, currency = 'USD' }: { amount: number; currency?: string }) =>
+    api.post('/stripe/payment-sheet', {
+      amount,
+      currency,
+    }),
 };
