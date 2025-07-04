@@ -1,40 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { Container } from '../components/Container';
-import { RecordatorioCard, RecordatorioFilters, EmptyRecordatorios, AddRecordatorioModal } from '../components/recordatorios';
-import { recordatoriosService } from '../services/api';
-import { Recordatorio } from '../types';
-import { Plus } from 'lucide-react-native';
+import { RecordatorioCard, RecordatorioFilters, EmptyRecordatorios } from '../components/recordatorios';
+import { useRecordatoriosStore } from '../stores/recordatoriosStore';
+import {
+  Plus
+} from 'lucide-react-native';
 
 export const RecordatoriosScreen = () => {
-  const [recordatorios, setRecordatorios] = useState<Recordatorio[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    recordatorios, 
+    loading, 
+    getRecordatorios, 
+    toggleComplete,
+    deleteRecordatorio
+  } = useRecordatoriosStore();
+  
   const [filter, setFilter] = useState<'todos' | 'pendientes' | 'completados'>('pendientes');
   const [refreshing, setRefreshing] = useState(false);
 
   const loadRecordatorios = async () => {
     try {
-      const response = await recordatoriosService.getRecordatorios();
-      setRecordatorios(response.data);
+      setRefreshing(true);
+      await getRecordatorios();
     } catch (error) {
       console.error('Error loading recordatorios:', error);
       Alert.alert('Error', 'No se pudieron cargar los recordatorios');
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    loadRecordatorios();
-  }, []);
+    getRecordatorios();
+  }, [getRecordatorios]);
 
   const handleToggleComplete = async (id: string, completado: boolean) => {
     try {
-      await recordatoriosService.updateRecordatorio(id, { completado });
-      setRecordatorios(prev =>
-        prev.map(r => r.id === id ? { ...r, completado } : r)
-      );
+      await toggleComplete(id, completado);
       Alert.alert('Éxito', 'Recordatorio actualizado correctamente');
     } catch (error) {
       console.error('Error updating recordatorio:', error);
@@ -52,17 +55,16 @@ export const RecordatoriosScreen = () => {
           text: 'Eliminar',
           style: 'destructive',
           onPress: () => {
-            const deleteRecordatorio = async () => {
+            const performDelete = async () => {
               try {
-                await recordatoriosService.deleteRecordatorio(id);
-                setRecordatorios(prev => prev.filter(r => r.id !== id));
+                await deleteRecordatorio(id);
                 Alert.alert('Éxito', 'Recordatorio eliminado correctamente');
               } catch (error) {
                 console.error('Error deleting recordatorio:', error);
                 Alert.alert('Error', 'No se pudo eliminar el recordatorio');
               }
             };
-            deleteRecordatorio();
+            performDelete();
           }
         }
       ]
@@ -70,7 +72,7 @@ export const RecordatoriosScreen = () => {
   };
 
   const handleAddRecordatorio = () => {
-    AddRecordatorioModal.show();
+    Alert.alert('Nuevo Recordatorio', 'Funcionalidad próximamente disponible');
   };
 
   const filteredRecordatorios = recordatorios.filter(recordatorio => {
@@ -80,6 +82,16 @@ export const RecordatoriosScreen = () => {
       default: return true;
     }
   });
+
+  // Debug: Verificar IDs únicos
+  React.useEffect(() => {
+    const ids = filteredRecordatorios.map(r => r.id_recordatorio);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== uniqueIds.size) {
+      console.warn('⚠️ IDs de recordatorios duplicados encontrados:', ids);
+    }
+    console.log('🔍 Recordatorios filtrados:', filteredRecordatorios.length, 'IDs:', ids);
+  }, [filteredRecordatorios]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -133,9 +145,9 @@ export const RecordatoriosScreen = () => {
             showsVerticalScrollIndicator={false}
           >
             <View className="gap-4 ">
-              {filteredRecordatorios.map((recordatorio) => (
+              {filteredRecordatorios.map((recordatorio, index) => (
                 <RecordatorioCard
-                  key={recordatorio.id}
+                  key={recordatorio.id_recordatorio || `recordatorio-${index}`}
                   recordatorio={recordatorio}
                   onToggleComplete={handleToggleComplete}
                   onDelete={handleDeleteRecordatorio}

@@ -56,7 +56,7 @@ export const useRecordatoriosStore = create<RecordatoriosState>((set, get) => ({
         recordatorios: [...recordatorios, response.data],
         loading: false 
       });
-      logger.info('✅ Recordatorio agregado exitosamente:', response.data.id);
+      logger.info('✅ Recordatorio agregado exitosamente:', response.data.id_recordatorio);
     } catch (error: any) {
       logger.error('❌ Error agregando recordatorio:', error);
       set({ 
@@ -77,7 +77,7 @@ export const useRecordatoriosStore = create<RecordatoriosState>((set, get) => ({
       
       set({ 
         recordatorios: recordatorios.map(recordatorio => 
-          recordatorio.id === id ? { ...recordatorio, ...response.data } : recordatorio
+          recordatorio.id_recordatorio === id ? { ...recordatorio, ...response.data } : recordatorio
         ),
         loading: false 
       });
@@ -101,7 +101,7 @@ export const useRecordatoriosStore = create<RecordatoriosState>((set, get) => ({
       const { recordatorios } = get();
       
       set({ 
-        recordatorios: recordatorios.filter(recordatorio => recordatorio.id !== id),
+        recordatorios: recordatorios.filter(recordatorio => recordatorio.id_recordatorio !== id),
         loading: false 
       });
       logger.info('✅ Recordatorio eliminado exitosamente:', id);
@@ -124,7 +124,7 @@ export const useRecordatoriosStore = create<RecordatoriosState>((set, get) => ({
       
       set({ 
         recordatorios: recordatorios.map(recordatorio => 
-          recordatorio.id === id ? { ...recordatorio, completado } : recordatorio
+          recordatorio.id_recordatorio === id ? { ...recordatorio, completado } : recordatorio
         )
       });
       logger.info('✅ Estado del recordatorio actualizado exitosamente:', id);

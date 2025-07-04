@@ -77,7 +77,7 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
 
     const handleRecordatorioPress = () => {
         const overdueText = isOverdue(recordatorio.fecha_programada) && !recordatorio.completado ? '\n⚠️ VENCIDO' : '';
-        const recordatorioDetails = `Mascota: ${recordatorio.mascota?.nombre ?? 'N/A'}\nTipo: ${recordatorio.tipo}\nDescripción: ${recordatorio.descripcion}\nFecha programada: ${formatDate(recordatorio.fecha_programada)}\nEstado: ${recordatorio.completado ? 'Completado' : 'Pendiente'}${overdueText}`;
+        const recordatorioDetails = `Mascota: ${recordatorio.id_mascota?.nombre ?? 'N/A'}\nTipo: ${recordatorio.tipo}\nTítulo: ${recordatorio.titulo}\nDescripción: ${recordatorio.descripcion}\nFecha programada: ${formatDate(recordatorio.fecha_programada)}\nEstado: ${recordatorio.completado ? 'Completado' : 'Pendiente'}${overdueText}`;
 
         const alertButtons: Array<{ text: string; style?: 'default' | 'cancel' | 'destructive'; onPress?: () => void }> = [
             { text: 'Cerrar', style: 'cancel' }
@@ -87,7 +87,7 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
             alertButtons.push({
                 text: 'Marcar como Completado',
                 onPress: () => {
-                    onToggleComplete(recordatorio.id, true);
+                    onToggleComplete(recordatorio.id_recordatorio, true);
                 }
             });
         }
@@ -144,11 +144,11 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
                         {getRecordatorioIcon(recordatorio.tipo)}
                     </View>
                     <View className="flex-1">
-                        <Text className="font-bold text-gray-800 text-base capitalize">
-                            {recordatorio.tipo}
+                        <Text className="font-bold text-gray-800 text-base">
+                            {recordatorio.titulo}
                         </Text>
-                        <Text className="text-sm text-gray-600">
-                            {recordatorio.mascota?.nombre ?? 'Mascota'}
+                        <Text className="text-sm text-gray-600 capitalize">
+                            {recordatorio.tipo} • {recordatorio.id_mascota?.nombre ?? 'Mascota'}
                         </Text>
                     </View>
                 </View>
@@ -164,11 +164,11 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
             </View>
 
             {/* Description */}
-            {recordatorio.descripcion && (
+            {recordatorio.descripcion ? (
                 <Text className="text-sm text-gray-600 mb-3">
                     {recordatorio.descripcion}
                 </Text>
-            )}
+            ) : null}
 
             {/* Date and Status */}
             <View className="flex-row items-center justify-between text-sm mb-4">
@@ -188,7 +188,7 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
                 <View className="flex-row gap-2">
                     <TouchableOpacity
                         className="flex-1 bg-[#003637] px-4 py-2 rounded-lg flex-row items-center justify-center"
-                        onPress={() => onToggleComplete(recordatorio.id, true)}
+                        onPress={() => onToggleComplete(recordatorio.id_recordatorio, true)}
                     >
                         <Check size={16} color="white" />
                         <Text className="text-white font-semibold ml-2 text-sm">
@@ -197,7 +197,7 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
                     </TouchableOpacity>
                     <TouchableOpacity
                         className="bg-neutral-50 border-gray-950 px-4 py-2 rounded-lg flex-row items-center justify-center"
-                        onPress={() => onDelete(recordatorio.id)}
+                        onPress={() => onDelete(recordatorio.id_recordatorio)}
                     >
                         <Text className="text-neutral-900 font-semibold ml-1 text-sm">
                             Eliminar
@@ -210,7 +210,7 @@ export const RecordatorioCard: React.FC<RecordatorioCardProps> = ({
             {recordatorio.completado && (
                 <TouchableOpacity
                     className="bg-gray-200 px-4 py-2 rounded-lg flex-row items-center justify-center"
-                    onPress={() => onDelete(recordatorio.id)}
+                    onPress={() => onDelete(recordatorio.id_recordatorio)}
                 >
                     <X size={16} color="#6B7280" />
                     <Text className="text-gray-700 font-semibold ml-2 text-sm">
