@@ -124,7 +124,7 @@ export const CitasScreen = () => {
     <Container>
       <View className="flex-1">
         <View className="flex-row justify-between items-center mb-4 ">
-          <Text className="text-2xl font-bold text-gray-800">Mis Citas</Text>
+          <Text className="text-2xl font-bold text-gray-800">Citas Médicas</Text>
           <TouchableOpacity
             className="bg-primary-500 px-4 py-2 rounded-lg flex-row items-center"
             onPress={handleAddCita}
@@ -133,6 +133,8 @@ export const CitasScreen = () => {
             <Text className="text-white font-semibold ml-1">Nueva</Text>
           </TouchableOpacity>
         </View>
+
+        <Text className="text-gray-600 mb-6">Gestiona las citas de tus mascotas</Text>
 
         {/* Filtros */}
         <View className="mb-4">
