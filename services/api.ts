@@ -16,13 +16,9 @@ api.interceptors.request.use(async (config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Log de la petición
-    logger.apiRequest(
-      config.method ?? 'unknown', 
-      config.url ?? 'unknown', 
-      config.data
-    );
+    logger.apiRequest(config.method ?? 'unknown', config.url ?? 'unknown', config.data);
   } catch (error) {
     console.error('Error getting token from storage:', error);
   }
@@ -34,8 +30,8 @@ api.interceptors.response.use(
   (response) => {
     // Log de respuesta exitosa
     logger.apiResponse(
-      response.config.method || 'unknown',
-      response.config.url || 'unknown',
+      response.config.method ?? 'unknown',
+      response.config.url ?? 'unknown',
       response.status,
       response.data
     );
@@ -43,11 +39,7 @@ api.interceptors.response.use(
   },
   async (error) => {
     // Log de error en API
-    logger.apiError(
-      error.config?.method || 'unknown',
-      error.config?.url || 'unknown',
-      error
-    );
+    logger.apiError(error.config?.method ?? 'unknown', error.config?.url ?? 'unknown', error);
 
     if (error.response?.status === 401) {
       // Token expirado o inválido
@@ -67,10 +59,8 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-  login: (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
-  register: (userData: any) => 
-    api.post('/auth/register', userData),
+  login: (email: string, password: string) => api.post('/auth/login', { email, password }),
+  register: (userData: any) => api.post('/auth/register', userData),
 };
 
 export const mascotasService = {
@@ -94,14 +84,16 @@ export const citasService = {
 export const historialesService = {
   getHistoriales: () => api.get('/historiales_medicos'),
   getHistorial: (id: string) => api.get(`/historiales_medicos/${id}`),
-  getHistorialByMascota: (mascotaId: string) => 
+  getHistorialByMascota: (mascotaId: string) =>
     api.get(`/historiales_medicos/mascota/${mascotaId}`),
 };
 
 export const recordatoriosService = {
   getRecordatorios: () => api.get('/recordatorios'),
+  getRecordatorio: (id: string) => api.get(`/recordatorios/${id}`),
+  getRecordatoriosByMascota: (mascotaId: string) => api.get(`/recordatorios/mascota/${mascotaId}`),
   createRecordatorio: (data: any) => api.post('/recordatorios', data),
-  updateRecordatorio: (id: string, data: any) => api.put(`/recordatorios/${id}`, data),
+  updateRecordatorio: (id: string, data: any) => api.patch(`/recordatorios/${id}`, data),
   deleteRecordatorio: (id: string) => api.delete(`/recordatorios/${id}`),
 };
 
