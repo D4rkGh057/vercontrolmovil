@@ -67,13 +67,13 @@ export interface Cliente {
 }
 
 export interface Recordatorio {
-  id: string;
+  id_recordatorio: string;
   tipo: 'vacuna' | 'medicamento' | 'desparasitacion';
+  titulo: string;
   descripcion: string;
   fecha_programada: string;
   completado: boolean;
-  mascota_id: string;
-  created_at: string;
-  updated_at: string;
-  mascota?: Mascota;
+  fecha_creacion: string;
+  fecha_actualizacion: string;
+  id_mascota: Mascota;
 }
