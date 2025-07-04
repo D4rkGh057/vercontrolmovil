@@ -76,4 +76,5 @@ export interface Recordatorio {
   fecha_creacion: string;
   fecha_actualizacion: string;
   id_mascota: Mascota;
+  notification_id?: string; // ID de la notificación programada
 }

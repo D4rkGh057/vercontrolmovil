@@ -61,11 +61,18 @@ export const AddRecordatorioModal: React.FC<AddRecordatorioModalProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    // Convertir formato DD/MM/YYYY a YYYY-MM-DD para el backend
+    // Convertir formato DD/MM/YYYY a YYYY-MM-DDT08:00:00 para el backend
+    // Esto asegura que siempre tenga hora (8:00 AM)
+    console.log('🔍 Formateando fecha:', dateString);
+    
     if (dateString.includes('/')) {
       const [day, month, year] = dateString.split('/');
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T08:00:00`;
+      console.log('📅 Fecha formateada con hora:', formattedDate);
+      return formattedDate;
     }
+    
+    console.log('⚠️ Fecha no formateada correctamente:', dateString);
     return dateString;
   };
 
@@ -109,14 +116,21 @@ export const AddRecordatorioModal: React.FC<AddRecordatorioModalProps> = ({
         return;
       }
 
+      // Formatear la fecha antes de asignarla
+      const fechaFormateada = formatDate(fecha);
+      console.log('🚀 Fecha original:', fecha);
+      console.log('🚀 Fecha formateada para envío:', fechaFormateada);
+      
       const recordatorioData: Partial<Recordatorio> = {
         tipo,
         titulo: titulo.trim(),
         descripcion: descripcion.trim(),
-        fecha_programada: formatDate(fecha),
+        fecha_programada: fechaFormateada,
         completado: false,
         id_mascota: mascotaSeleccionada
       };
+      
+      console.log('📝 Datos del recordatorio a enviar:', JSON.stringify(recordatorioData, null, 2));
 
       await onSubmit(recordatorioData);
       handleClose();
