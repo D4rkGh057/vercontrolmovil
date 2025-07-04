@@ -3,11 +3,11 @@ import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator } fr
 import { Container } from '../components/Container';
 import { recordatoriosService } from '../services/api';
 import { Recordatorio } from '../types';
-import { 
-  Syringe, 
-  Pill, 
-  Bug, 
-  Calendar, 
+import {
+  Syringe,
+  Pill,
+  Bug,
+  Calendar,
   Plus,
   AlertTriangle,
   CheckCircle
@@ -36,7 +36,7 @@ export const RecordatoriosScreen = () => {
 
   const getRecordatorioIcon = (tipo: string) => {
     const iconProps = { size: 24, color: '#6B7280' };
-    
+
     switch (tipo) {
       case 'vacuna': return <Syringe {...iconProps} color="#3B82F6" />;
       case 'medicamento': return <Pill {...iconProps} color="#8B5CF6" />;
@@ -47,7 +47,7 @@ export const RecordatoriosScreen = () => {
 
   const getRecordatorioBgColor = (tipo: string, completado: boolean) => {
     if (completado) return 'bg-green-50 border-green-200';
-    
+
     switch (tipo) {
       case 'vacuna': return 'bg-blue-50 border-blue-200';
       case 'medicamento': return 'bg-purple-50 border-purple-200';
@@ -74,14 +74,14 @@ export const RecordatoriosScreen = () => {
   const handleRecordatorioPress = (recordatorio: Recordatorio) => {
     const overdueText = isOverdue(recordatorio.fecha_programada) && !recordatorio.completado ? '\n⚠️ VENCIDO' : '';
     const recordatorioDetails = `Mascota: ${recordatorio.mascota?.nombre ?? 'N/A'}\nTipo: ${recordatorio.tipo}\nDescripción: ${recordatorio.descripcion}\nFecha programada: ${formatDate(recordatorio.fecha_programada)}\nEstado: ${recordatorio.completado ? 'Completado' : 'Pendiente'}${overdueText}`;
-    
+
     Alert.alert(
       'Detalle del Recordatorio',
       recordatorioDetails,
       [
         { text: 'Cerrar', style: 'cancel' },
-        ...(recordatorio.completado ? [] : [{ 
-          text: 'Marcar como Completado', 
+        ...(recordatorio.completado ? [] : [{
+          text: 'Marcar como Completado',
           onPress: () => handleToggleComplete(recordatorio.id, true)
         }])
       ]
@@ -91,7 +91,7 @@ export const RecordatoriosScreen = () => {
   const handleToggleComplete = async (id: string, completado: boolean) => {
     try {
       await recordatoriosService.updateRecordatorio(id, { completado });
-      setRecordatorios(prev => 
+      setRecordatorios(prev =>
         prev.map(r => r.id === id ? { ...r, completado } : r)
       );
       Alert.alert('Éxito', 'Recordatorio actualizado correctamente');
@@ -120,8 +120,8 @@ export const RecordatoriosScreen = () => {
   });
 
   const getFilterButtonStyle = (filterType: string) => {
-    return filter === filterType 
-      ? 'bg-blue-500 text-white' 
+    return filter === filterType
+      ? 'bg-primary-500 text-white'
       : 'bg-gray-200 text-gray-700';
   };
 
@@ -138,11 +138,11 @@ export const RecordatoriosScreen = () => {
 
   return (
     <Container>
-      <View className="flex-1">
-        <View className="flex-row justify-between items-center mb-4">
+      <View className="flex-1 bg-neutral-50">
+        <View className="flex-row justify-between items-center mb-4 ">
           <Text className="text-2xl font-bold text-gray-800">Recordatorios</Text>
-          <TouchableOpacity 
-            className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center"
+          <TouchableOpacity
+            className="bg-primary-500 px-4 py-2 rounded-lg flex-row items-center"
             onPress={handleAddRecordatorio}
           >
             <Plus size={16} color="white" />
@@ -151,8 +151,12 @@ export const RecordatoriosScreen = () => {
         </View>
 
         {/* Filtros */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
-          <View className="flex-row space-x-2">
+        <View className="mb-4">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 0 }}
+          >
             {['todos', 'pendientes', 'completados'].map((filterType) => (
               <TouchableOpacity
                 key={filterType}
@@ -164,8 +168,8 @@ export const RecordatoriosScreen = () => {
                 </Text>
               </TouchableOpacity>
             ))}
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
 
         {filteredRecordatorios.length === 0 ? (
           <View className="flex-1 justify-center items-center">
@@ -176,14 +180,14 @@ export const RecordatoriosScreen = () => {
               No tienes recordatorios {filter === 'todos' ? '' : filter}
             </Text>
             <Text className="text-gray-500 text-center mb-6">
-              {filter === 'todos' 
+              {filter === 'todos'
                 ? 'Crea recordatorios para el cuidado de tus mascotas'
                 : `No hay recordatorios ${filter}`
               }
             </Text>
             {filter === 'todos' && (
-              <TouchableOpacity 
-                className="bg-blue-500 px-6 py-3 rounded-lg flex-row items-center"
+              <TouchableOpacity
+                className="bg-primary-500 px-6 py-3 rounded-lg flex-row items-center"
                 onPress={handleAddRecordatorio}
               >
                 <Plus size={16} color="white" />
@@ -195,7 +199,7 @@ export const RecordatoriosScreen = () => {
           <ScrollView className="flex-1">
             {filteredRecordatorios.map((recordatorio) => {
               const overdue = isOverdue(recordatorio.fecha_programada) && !recordatorio.completado;
-              
+
               return (
                 <TouchableOpacity
                   key={recordatorio.id}

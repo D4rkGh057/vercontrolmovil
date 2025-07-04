@@ -377,7 +377,7 @@ export const MascotasScreen = () => {
     <Container>
       <View className="flex-1 px-4">
         {/* Header */}
-        <View className="flex-row justify-between items-center mt-10 mb-2">
+        <View className="flex-row justify-between items-center  mb-2">
           <Text className="text-2xl font-bold text-gray-800">Mis Mascotas</Text>
           <TouchableOpacity
             className="bg-primary-500 px-4 py-2 rounded-lg flex-row items-center"

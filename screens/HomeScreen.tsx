@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View, RefreshControl, ActivityIndicator, Alert, Pressable, TouchableOpacity } from 'react-native';
+import { ScrollView, Text, View, RefreshControl, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Container } from '../components/Container';
 import { citasService, mascotasService /*, recordatoriosService*/ } from '../services/api';
@@ -94,15 +94,18 @@ export const HomeScreen = () => {
   return (
     <Container>
       <ScrollView
-        className="flex-1 bg-neutral-50"
+        className="flex-1"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {/* Header */}
-        <View className="bg-primary-500 rounded-2xl mx-4 mt-10 p-6 mb-6">
+        <View className="bg-primary-500 rounded-2xl mx-4  p-6 mb-6">
           <View className="flex-row items-center justify-left">
-            <Text className="text-white text-2xl font-bold">¡Hola! {user?.nombre} </Text> <HeartHandshake size={24} color="#fff" />
+            <Text className="text-white text-2xl font-bold">¡Hola! {user?.nombre}</Text>
+            <View className="ml-2">
+              <HeartHandshake size={24} color="#fff" />
+            </View>
           </View>
           <Text className="text-white/90 text-base mt-1">Cuida a tus mascotas con amor</Text>
         </View>
