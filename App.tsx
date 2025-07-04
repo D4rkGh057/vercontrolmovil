@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';
 import { useAuthStore } from './stores/authStore';
 import { LoginScreen } from './screens/LoginScreen';
 import { HomeScreen } from './screens/HomeScreen';
@@ -30,6 +31,45 @@ const AppContent = () => {
   useEffect(() => {
     checkAuthState();
   }, [checkAuthState]);
+  
+  // Inicializar sistema de notificaciones
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        // Importar de forma dinámica para evitar ciclos de dependencia
+        const { initNotifications } = require('./utils/notifications');
+        await initNotifications();
+        console.log('✅ Sistema de notificaciones inicializado en App.tsx');
+      } catch (error) {
+        console.error('❌ Error al inicializar notificaciones:', error);
+      }
+    };
+    
+    initApp();
+  }, []);
+
+  // Configurar listener de notificaciones
+  useEffect(() => {
+    console.log('🔊 Configurando listeners de notificaciones...');
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log('🔔 Notificación recibida:', notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('👆 Usuario tocó notificación:', response);
+      const data = response.notification.request.content.data;
+      
+      if (data?.type === 'recordatorio' && data?.recordatorioId) {
+        // Aquí podrías navegar a la pantalla de recordatorios específico
+        console.log('🔔 Recordatorio ID:', data.recordatorioId);
+      }
+    });
+
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
+  }, []);
 
   if (isLoading) {
     return (

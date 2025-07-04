@@ -4,6 +4,7 @@ import { Container } from '../components/Container';
 import { EditProfileModal } from '../components/EditProfileModal';
 import { useAuthStore } from '../stores/authStore';
 import { useMascotasStore } from '../stores/mascotasStore';
+import { requestNotificationPermissions } from '../utils/notifications'; // Importar la función de permisos
 import {
   User,
   Settings,
@@ -12,7 +13,8 @@ import {
   LogOut,
   ChevronRight,
   Phone,
-  MapPinHouse
+  MapPinHouse,
+  Bell
 } from 'lucide-react-native';
 
 export const PerfilScreen = () => {
@@ -51,6 +53,15 @@ export const PerfilScreen = () => {
 
   const handleUpdateProfile = async (userData: any) => {
     await updateProfile(userData);
+  };
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestNotificationPermissions();
+    if (granted) {
+      Alert.alert('Notificaciones habilitadas', 'Ahora recibirás recordatorios y notificaciones importantes.');
+    } else {
+      Alert.alert('Permiso denegado', 'No se pudieron habilitar las notificaciones.');
+    }
   };
 
   const debugUser = () => {
@@ -118,6 +129,20 @@ export const PerfilScreen = () => {
 
         {/* Menu Options */}
         <View className="bg-white rounded-lg mb-4 shadow-sm border border-gray-200">
+          <TouchableOpacity
+            className="flex-row items-center p-4 border-b border-gray-100"
+            onPress={handleEnableNotifications} // Botón para habilitar notificaciones
+          >
+            <View className="mr-4">
+              <Bell size={24} color="#6B7280" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-lg font-medium text-gray-800">Habilitar Notificaciones</Text>
+              <Text className="text-sm text-gray-600">Recibe recordatorios y alertas importantes</Text>
+            </View>
+            <ChevronRight size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             className="flex-row items-center p-4 border-b border-gray-100"
             onPress={handleSettings}
