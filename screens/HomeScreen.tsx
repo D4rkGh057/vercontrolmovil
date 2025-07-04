@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, RefreshControl, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Container } from '../components/Container';
-import { citasService, mascotasService /*, recordatoriosService*/ } from '../services/api';
-import { Cita, Mascota /*, Recordatorio*/ } from '../types';
+import { useAuthStore } from 'stores/authStore';
+import { useCitasStore } from '../stores/citasStore';
+import { useMascotasStore } from '../stores/mascotasStore';
+import { Cita } from '../types';
 import {
   Heart,
   Calendar,
@@ -12,14 +14,21 @@ import {
   Cat,
   HeartHandshake
 } from 'lucide-react-native';
-import { useAuthStore } from 'stores/authStore';
 
 export const HomeScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore();
-  const [citas, setCitas] = useState<Cita[]>([]);
-  const [mascotas, setMascotas] = useState<Mascota[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    citas, 
+    loading: citasLoading, 
+    getCitas 
+  } = useCitasStore();
+  
+  const { 
+    mascotas, 
+    loading: mascotasLoading, 
+    getMascotasByDueño 
+  } = useMascotasStore();
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = async () => {
@@ -33,23 +42,14 @@ export const HomeScreen = () => {
         throw new Error('El usuario no está autenticado correctamente');
       }
 
-      console.log('🚀 Realizando llamadas a la API...');
-      const [citasResponse, mascotasResponse] = await Promise.all([
-        citasService.getCitas(),
-        mascotasService.getMascotasByDueño(user.id),
+      setRefreshing(true);
+      console.log('🚀 Realizando llamadas a la API usando stores...');
+      
+      // Cargar datos usando los stores
+      await Promise.all([
+        getCitas(),
+        getMascotasByDueño(user.id)
       ]);
-
-      console.log('📋 Respuesta de citas:', citasResponse.data);
-      console.log('🐕 Respuesta de mascotas:', mascotasResponse.data);
-
-      // Filtrar próximas citas
-      const proximasCitas = citasResponse.data
-        .filter((cita: Cita) => cita.estado === 'Pendiente')
-        .slice(0, 3);
-
-      setCitas(proximasCitas);
-      console.log("✅ Numero de Mascotas cargadas:", mascotasResponse.data.length);
-      setMascotas(mascotasResponse.data);
 
       console.log('🎉 Carga de datos completada exitosamente');
     } catch (error: any) {
@@ -61,26 +61,34 @@ export const HomeScreen = () => {
       });
       Alert.alert('Error', 'No se pudieron cargar los datos');
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [getCitas, getMascotasByDueño]);
 
   const onRefresh = () => {
     setRefreshing(true);
     loadData();
   };
 
+  // Filtrar próximas citas (próximos 7 días)
+  const proximasCitas = citas
+    .filter((cita) => cita.estado === 'Pendiente')
+    .slice(0, 3);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES');
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
-  if (loading) {
+  if (citasLoading || mascotasLoading) {
     return (
       <Container>
         <View className="flex-1 justify-center items-center">
@@ -119,7 +127,7 @@ export const HomeScreen = () => {
           </View>
           <View className="flex-1 bg-white rounded-xl p-4 ml-2 items-center shadow-sm">
             <Calendar size={24} color="#005456" />
-            <Text className="text-2xl font-bold text-neutral-800 mt-2">{citas.length}</Text>
+            <Text className="text-2xl font-bold text-neutral-800 mt-2">{proximasCitas.length}</Text>
             <Text className="text-neutral-600 text-sm">Citas</Text>
           </View>
         </View>
@@ -167,8 +175,8 @@ export const HomeScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {citas.length > 0 ? (
-            citas.map((cita) => (
+          {proximasCitas.length > 0 ? (
+            proximasCitas.map((cita) => (
               <View key={cita.id_cita} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
                 <View className="flex-row justify-between items-start mb-2">
                   <Text className="font-bold text-neutral-800 text-base">{cita.id_mascota?.nombre}</Text>

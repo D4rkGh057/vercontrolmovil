@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { Container } from '../components/Container';
-import { citasService } from '../services/api';
+import { useCitasStore } from '../stores/citasStore';
 import { Cita } from '../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -14,27 +14,30 @@ import {
 } from 'lucide-react-native';
 
 export const CitasScreen = () => {
-  const [citas, setCitas] = useState<Cita[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    citas, 
+    loading, 
+    getCitas 
+  } = useCitasStore();
+  
   const [filter, setFilter] = useState<'todas' | 'Pendiente' | 'Completada' | 'Cancelada'>('todas');
   const [refreshing, setRefreshing] = useState(false);
 
   const loadCitas = async () => {
     try {
-      const response = await citasService.getCitas();
-      setCitas(response.data);
+      setRefreshing(true);
+      await getCitas();
     } catch (error) {
       console.error('Error loading citas:', error);
       Alert.alert('Error', 'No se pudieron cargar las citas');
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    loadCitas();
-  }, []);
+    getCitas();
+  }, [getCitas]);
 
   const getStatusColor = (estado: string) => {
     switch (estado.toLowerCase()) {
