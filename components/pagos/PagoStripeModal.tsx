@@ -27,6 +27,7 @@ export const PagoStripeModal: React.FC<PagoStripeModalProps> = ({
   onPaymentSuccess
 }) => {
   const [loading, setLoading] = useState(false);
+  const [useHighContrast, setUseHighContrast] = useState(false);
 
   if (!pago) return null;
 
@@ -57,7 +58,8 @@ export const PagoStripeModal: React.FC<PagoStripeModalProps> = ({
         amountInCents,
         'usd',
         customerEmail,
-        descripcion
+        descripcion,
+        useHighContrast
       );
 
       if (result.success && result.paymentIntentId) {
@@ -94,6 +96,8 @@ export const PagoStripeModal: React.FC<PagoStripeModalProps> = ({
   };
 
   const isVencido = () => {
+    if (!pago.fecha_vencimiento) return false; // No puede estar vencido si no tiene fecha de vencimiento
+    
     const today = new Date();
     const vencimiento = new Date(pago.fecha_vencimiento);
     return vencimiento < today && pago.estado?.toLowerCase() === 'pendiente';
@@ -157,12 +161,14 @@ export const PagoStripeModal: React.FC<PagoStripeModalProps> = ({
                   </Text>
                 </View>
                 
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-600">Vencimiento:</Text>
-                  <Text className={`font-medium ${isVencido() ? 'text-red-600' : 'text-gray-900'}`}>
-                    {new Date(pago.fecha_vencimiento).toLocaleDateString('es-EC')}
-                  </Text>
-                </View>
+                {pago.fecha_vencimiento && (
+                  <View className="flex-row justify-between">
+                    <Text className="text-gray-600">Vencimiento:</Text>
+                    <Text className={`font-medium ${isVencido() ? 'text-red-600' : 'text-gray-900'}`}>
+                      {new Date(pago.fecha_vencimiento).toLocaleDateString('es-EC')}
+                    </Text>
+                  </View>
+                )}
 
                 {pago.id_mascota && (
                   <View className="flex-row justify-between">
@@ -176,7 +182,7 @@ export const PagoStripeModal: React.FC<PagoStripeModalProps> = ({
             </View>
 
             {/* Información de seguridad */}
-            <View className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <View className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
               <View className="flex-row items-center mb-2">
                 <CheckCircle size={20} color="#059669" />
                 <Text className="text-green-800 font-medium ml-2">
@@ -186,6 +192,33 @@ export const PagoStripeModal: React.FC<PagoStripeModalProps> = ({
               <Text className="text-green-700 text-sm">
                 Tu información de pago está protegida con encriptación de nivel bancario. 
                 Stripe es una plataforma de pagos líder mundial utilizada por millones de empresas.
+              </Text>
+            </View>
+
+            {/* Nota sobre la interfaz de pago */}
+            <View className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-blue-800 text-sm font-medium">
+                  💡 Configuración de Visualización
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setUseHighContrast(!useHighContrast)}
+                  className={`px-3 py-1 rounded-full ${
+                    useHighContrast ? 'bg-blue-600' : 'bg-blue-200'
+                  }`}
+                >
+                  <Text className={`text-xs font-medium ${
+                    useHighContrast ? 'text-white' : 'text-blue-800'
+                  }`}>
+                    {useHighContrast ? 'Alto Contraste ✓' : 'Normal'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <Text className="text-blue-700 text-xs">
+                {useHighContrast 
+                  ? 'Modo de alto contraste activado para mejor visibilidad del texto.'
+                  : 'La pantalla de pago usará colores estándar. Activa alto contraste si tienes dificultades para leer.'
+                }
               </Text>
             </View>
 

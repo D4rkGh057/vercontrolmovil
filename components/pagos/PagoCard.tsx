@@ -72,6 +72,8 @@ export const PagoCard: React.FC<PagoCardProps> = ({
     };
 
     const isVencido = () => {
+        if (!pago.fecha_vencimiento) return false; // No puede estar vencido si no tiene fecha de vencimiento
+        
         const today = new Date();
         const vencimiento = new Date(pago.fecha_vencimiento);
         return vencimiento < today && pago.estado === 'pendiente';
@@ -142,13 +144,15 @@ export const PagoCard: React.FC<PagoCardProps> = ({
                     </Text>
                 </View>
 
-                <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-gray-500 text-xs">Fecha de vencimiento</Text>
-                    <Text className={`text-xs font-medium ${isVencido() ? 'text-red-600' : 'text-gray-700'
-                        }`}>
-                        {formatDate(pago.fecha_vencimiento)}
-                    </Text>
-                </View>
+                {pago.fecha_vencimiento && (
+                    <View className="flex-row justify-between items-center mb-2">
+                        <Text className="text-gray-500 text-xs">Fecha de vencimiento</Text>
+                        <Text className={`text-xs font-medium ${isVencido() ? 'text-red-600' : 'text-gray-700'
+                            }`}>
+                            {formatDate(pago.fecha_vencimiento)}
+                        </Text>
+                    </View>
+                )}
 
                 {pago.fecha_pago && (
                     <View className="flex-row justify-between items-center mb-2">

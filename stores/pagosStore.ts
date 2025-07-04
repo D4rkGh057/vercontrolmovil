@@ -10,6 +10,7 @@ interface PagosState {
   // Acciones
   getPagos: () => Promise<void>;
   getPagosByUsuario: (userId: string) => Promise<void>;
+  updatePago: (pagoId: string, data: Partial<Pago>) => Promise<void>;
   marcarComoPagado: (pagoId: string, metodoPago: string, comprobante?: string) => Promise<void>;
   clearError: () => void;
   setPagos: (pagos: Pago[]) => void;
@@ -59,6 +60,36 @@ export const usePagosStore = create<PagosState>((set, get) => ({
       console.error('❌ Error al obtener pagos del usuario:', error);
       set({ 
         error: error.response?.data?.message ?? 'Error al cargar los pagos',
+        loading: false 
+      });
+    }
+  },
+
+  updatePago: async (pagoId: string, data: Partial<Pago>) => {
+    set({ loading: true, error: null });
+    try {
+      console.log('🔄 Actualizando pago:', pagoId, data);
+      
+      const response = await pagosService.updatePago(pagoId, data);
+
+      if (response.data) {
+        const pagos = get().pagos;
+        const updatedPagos = pagos.map(pago => {
+          const pagoId_actual = pago.id_pago ?? pago.id_factura;
+          const pagoId_buscar = pagoId;
+          
+          return pagoId_actual === pagoId_buscar 
+            ? { ...pago, ...response.data, ...data }
+            : pago;
+        });
+        
+        set({ pagos: updatedPagos, loading: false });
+        console.log('✅ Pago actualizado exitosamente');
+      }
+    } catch (error: any) {
+      console.error('❌ Error al actualizar pago:', error);
+      set({ 
+        error: error.response?.data?.message ?? 'Error al actualizar el pago',
         loading: false 
       });
     }

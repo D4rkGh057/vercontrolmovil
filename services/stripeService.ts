@@ -3,6 +3,74 @@ import { api } from './api';
 import { logger } from './logger';
 import { STRIPE_CONFIG, PaymentSheetParams, CreatePaymentSheetRequest, PaymentResult } from '../constants/stripe';
 
+/**
+ * Configuración de apariencia para el Payment Sheet
+ */
+const getPaymentSheetAppearance = () => ({
+  colors: {
+    primary: '#005456', // Color teal de la app
+    background: '#ffffff', // Fondo blanco
+    componentBackground: '#ffffff', // Fondo de componentes blanco
+    componentBorder: '#d1d5db', // Borde gris
+    componentDivider: '#e5e7eb', // Divisores grises
+    primaryText: '#000000', // Texto principal negro
+    secondaryText: '#374151', // Texto secundario gris oscuro
+    componentText: '#000000', // Texto en componentes negro
+    placeholderText: '#6b7280', // Placeholder gris medio
+    icon: '#374151', // Iconos grises oscuros
+    error: '#dc2626', // Errores rojos
+  },
+  shapes: {
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  primaryButton: {
+    colors: {
+      background: '#005456',
+      text: '#ffffff',
+      border: '#005456',
+    },
+    shapes: {
+      borderRadius: 8,
+      borderWidth: 0,
+    },
+  },
+});
+
+/**
+ * Configuración de alto contraste para mejor visibilidad
+ */
+const getHighContrastAppearance = () => ({
+  colors: {
+    primary: '#000000', // Negro para máximo contraste
+    background: '#ffffff', // Fondo blanco puro
+    componentBackground: '#ffffff', // Fondo de componentes blanco puro
+    componentBorder: '#000000', // Bordes negros
+    componentDivider: '#000000', // Divisores negros
+    primaryText: '#000000', // Texto principal negro
+    secondaryText: '#000000', // Texto secundario negro
+    componentText: '#000000', // Texto en componentes negro
+    placeholderText: '#666666', // Placeholder gris oscuro
+    icon: '#000000', // Iconos negros
+    error: '#cc0000', // Errores rojo oscuro
+  },
+  shapes: {
+    borderRadius: 8,
+    borderWidth: 2, // Bordes más gruesos
+  },
+  primaryButton: {
+    colors: {
+      background: '#000000',
+      text: '#ffffff',
+      border: '#000000',
+    },
+    shapes: {
+      borderRadius: 6,
+      borderWidth: 2,
+    },
+  },
+});
+
 class StripeService {
   /**
    * Inicializa y presenta el Payment Sheet de Stripe
@@ -11,14 +79,16 @@ class StripeService {
     amount: number,
     currency: string = 'usd',
     customerEmail?: string,
-    description?: string
+    description?: string,
+    useHighContrast: boolean = false
   ): Promise<PaymentResult> {
     try {
       logger.info('🔄 Iniciando proceso de pago con Stripe', {
         amount,
         currency,
         customerEmail,
-        description
+        description,
+        useHighContrast
       });
 
       // 1. Crear el Payment Sheet en el backend
@@ -28,7 +98,9 @@ class StripeService {
         customerEmail
       });
 
-      // 2. Inicializar el Payment Sheet
+      // 2. Inicializar el Payment Sheet con apariencia seleccionada
+      const appearance = useHighContrast ? getHighContrastAppearance() : getPaymentSheetAppearance();
+      
       const { error: initError } = await initPaymentSheet({
         merchantDisplayName: 'VetControl',
         customerId: paymentSheetParams.customer,
@@ -37,18 +109,7 @@ class StripeService {
         defaultBillingDetails: {
           email: customerEmail,
         },
-        appearance: {
-          colors: {
-            primary: '#005456', // Color teal de la app
-            background: '#ffffff',
-            componentBackground: '#f8f9fa',
-            primaryText: '#1f2937',
-            secondaryText: '#6b7280',
-          },
-          shapes: {
-            borderRadius: 12,
-          },
-        },
+        appearance,
         returnURL: 'vetcontrol://payment-return',
       });
 

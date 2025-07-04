@@ -106,7 +106,7 @@ export interface Pago {
   monto?: number;
   total?: number; // Para compatibilidad con el modelo de facturas
   fecha_emision: string;
-  fecha_vencimiento: string;
+  fecha_vencimiento?: string; // Opcional
   fecha_pago?: string;
   estado: 'pagado' | 'pendiente' | 'anulado' | 'vencido';
   metodo_pago?: 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Stripe' | 'Otro';

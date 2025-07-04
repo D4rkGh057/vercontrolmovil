@@ -88,7 +88,7 @@ export const PerfilScreen = () => {
 
   return (
     <Container>
-      <ScrollView className="flex-1 mt-10">
+      <ScrollView className="flex-1">
         <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
           Mi Perfil
         </Text>

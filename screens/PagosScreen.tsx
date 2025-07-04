@@ -30,7 +30,7 @@ export const PagosScreen = () => {
         loading,
         error,
         getPagosByUsuario,
-        marcarComoPagado,
+        updatePago,
         clearError
     } = usePagosStore();
 
@@ -69,6 +69,8 @@ export const PagosScreen = () => {
     }, [error]);
 
     const isVencido = (pago: Pago) => {
+        if (!pago.fecha_vencimiento) return false; // No puede estar vencido si no tiene fecha de vencimiento
+        
         const today = new Date();
         const vencimiento = new Date(pago.fecha_vencimiento);
         return vencimiento < today && pago.estado?.toLowerCase() === 'pendiente';
@@ -117,8 +119,13 @@ const formatCurrency = (amount: number) => {
                 throw new Error('ID de pago no encontrado');
             }
 
-            // Marcar como pagado en el backend con el payment intent de Stripe
-            await marcarComoPagado(id, 'Tarjeta', paymentIntentId);
+            // Actualizar el estado del pago a pagado con el payment intent de Stripe
+            await updatePago(id, {
+                estado: 'pagado',
+                metodo_pago: 'Stripe',
+                comprobante_url: paymentIntentId,
+                fecha_pago: new Date().toISOString()
+            });
             
             // Recargar la lista de pagos
             await loadPagos();
@@ -151,7 +158,7 @@ const formatCurrency = (amount: number) => {
         <Container>
             <View className="flex-1">
                 {/* Header */}
-                <View className="px-6 pt-6 pb-4">
+                <View className="px-6 pb-4">
                     <Text className="text-2xl font-bold text-neutral-900 mb-2">
                         Mis Pagos
                     </Text>
