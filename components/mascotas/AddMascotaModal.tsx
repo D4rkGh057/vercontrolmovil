@@ -56,6 +56,8 @@ export const AddMascotaModal: React.FC<AddMascotaModalProps> = ({
             onChangeText={(value) => updateFormField('nombre', value)}
             placeholder="Nombre de la mascota"
             placeholderTextColor="#9CA3AF"
+            autoCapitalize="words"
+            maxLength={50}
           />
         </View>
         {/* Especie */}
@@ -99,6 +101,7 @@ export const AddMascotaModal: React.FC<AddMascotaModalProps> = ({
             onChangeText={(value) => updateFormField('raza', value)}
             placeholder="Ej: Labrador, Persa, Mestizo"
             placeholderTextColor="#9CA3AF"
+            autoCapitalize="words"
           />
         </View>
         {/* Sexo */}
@@ -133,9 +136,11 @@ export const AddMascotaModal: React.FC<AddMascotaModalProps> = ({
           <TextInput
             className="border border-gray-300 rounded-lg px-3 py-2 text-base"
             value={mascotaForm.fecha_nacimiento}
-            onChangeText={(value) => updateFormField('fecha_nacimiento', value)}
+            onChangeText={(value) => updateFormField('fecha_nacimiento', formatFechaNacimiento(value))}
             placeholder="YYYY-MM-DD (Ej: 2020-05-15)"
             placeholderTextColor="#9CA3AF"
+            maxLength={10}
+            keyboardType="numeric"
           />
           <Text className="text-xs text-gray-500 mt-1">Formato: Año-Mes-Día</Text>
         </View>
@@ -161,6 +166,7 @@ export const AddMascotaModal: React.FC<AddMascotaModalProps> = ({
             placeholder="Ej: 15.5"
             placeholderTextColor="#9CA3AF"
             keyboardType="decimal-pad"
+            maxLength={6}
           />
         </View>
 
@@ -193,8 +199,10 @@ export const AddMascotaModal: React.FC<AddMascotaModalProps> = ({
             className="border border-gray-300 rounded-lg px-3 py-2 text-base"
             value={mascotaForm.num_microchip_collar}
             onChangeText={(value) => updateFormField('num_microchip_collar', value)}
-            placeholder="Ej: MC001234567890"
+            placeholder="Ej: 956000012345678"
             placeholderTextColor="#9CA3AF"
+            keyboardType='numeric'
+            maxLength={15}
           />
         </View>
 
@@ -255,3 +263,18 @@ export const AddMascotaModal: React.FC<AddMascotaModalProps> = ({
     </View>
   </Modal>
 );
+
+// Función para formatear la fecha como YYYY-MM-DD
+function formatFechaNacimiento(input: string) {
+  // Eliminar todo lo que no sea dígito
+  let value = input.replace(/[^0-9]/g, '');
+  if (value.length > 8) value = value.slice(0, 8);
+  let formatted = value;
+  if (value.length > 4) {
+    formatted = value.slice(0, 4) + '-' + value.slice(4);
+  }
+  if (value.length > 6) {
+    formatted = formatted.slice(0, 7) + '-' + formatted.slice(7);
+  }
+  return formatted;
+}

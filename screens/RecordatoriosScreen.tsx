@@ -207,7 +207,7 @@ export const RecordatoriosScreen = () => {
                       console.log('🧪 Solicitando notificación de prueba...');
                       await scheduleTestNotification();
                       console.log('✅ Notificación de prueba programada');
-                      Alert.alert('Notificación de prueba', 'Se programó una notificación para 5 segundos');
+                      Alert.alert('Notificación de prueba', 'Se programó una notificación para 10 segundos');
                     } catch (error) {
                       console.error('❌ Error al enviar notificación de prueba:', error);
                       Alert.alert('Error', 'No se pudo programar la notificación de prueba');

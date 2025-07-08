@@ -3,7 +3,7 @@ export const STRIPE_CONFIG = {
   // La publishable key se puede exponer en el frontend
   PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? 'pk_test_...',
   // URL base del backend
-  API_URL: process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.1.13:3000',
+  API_URL: process.env.EXPO_PUBLIC_API_URL ?? 'http://10.79.5.67:3000',
 };
 
 // Tipos para las respuestas de Stripe

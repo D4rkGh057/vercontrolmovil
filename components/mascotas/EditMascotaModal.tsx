@@ -268,9 +268,11 @@ export const EditMascotaModal: React.FC<EditMascotaModalProps> = ({
               <TextInput
                 value={mascotaForm.num_microchip_collar}
                 onChangeText={(value) => updateFormField('num_microchip_collar', value)}
-                placeholder="Ej: MC001234567890"
+                placeholder="Ej: 956000012345678"
                 className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
                 placeholderTextColor="#9CA3AF"
+                keyboardType="numeric"
+                maxLength={15}
               />
             </View>
 

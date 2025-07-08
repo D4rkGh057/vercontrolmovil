@@ -81,7 +81,7 @@ export const MascotasScreen = () => {
 
   // Datos de ejemplo para el historial médico
   const historialMedico: Record<string, HistorialItem[]> = {
-    'boby': [
+    'doki': [
       {
         id: '1',
         tipo: 'vacuna',
@@ -416,6 +416,7 @@ export const MascotasScreen = () => {
               }
 
               const mascotaKey = mascota.nombre.toLowerCase();
+              console.log('Mascota Key:', mascotaKey);
               const historial = historialMedico[mascotaKey] || [];
               const isExpanded = expandedMascota === mascota.id_mascota;
               const edad = mascota.fecha_nacimiento

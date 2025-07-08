@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from './logger';
 
-const BASE_URL = 'http://192.168.1.13:3000'; // Para emulador Android, cambia por tu IP si usas dispositivo físico
+const BASE_URL = 'http://10.79.5.67:3000'; // Para emulador Android, cambia por tu IP si usas dispositivo físico
 
 export const api = axios.create({
   baseURL: BASE_URL,

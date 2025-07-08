@@ -143,6 +143,21 @@ export const AddRecordatorioModal: React.FC<AddRecordatorioModalProps> = ({
     }
   };
 
+  // Formatea la fecha a DD/MM/YYYY automáticamente mientras el usuario escribe
+  const handleFechaChange = (text: string) => {
+    let cleaned = text.replace(/\D/g, ''); // Solo números
+    cleaned = cleaned.slice(0, 8); // Máximo 8 dígitos
+    let formatted = '';
+    if (cleaned.length > 4) {
+      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4) + '/' + cleaned.slice(4, 8);
+    } else if (cleaned.length > 2) {
+      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+    } else {
+      formatted = cleaned;
+    }
+    setFecha(formatted);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -254,7 +269,7 @@ export const AddRecordatorioModal: React.FC<AddRecordatorioModalProps> = ({
               className="border border-gray-300 rounded-lg p-3 text-base"
               placeholder="DD/MM/YYYY"
               value={fecha}
-              onChangeText={setFecha}
+              onChangeText={handleFechaChange}
               maxLength={10}
               keyboardType="numeric"
             />
