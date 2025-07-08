@@ -25,3 +25,6 @@ android
 # environment files
 .env
 .env.*
+
+# Docs
+docs/
